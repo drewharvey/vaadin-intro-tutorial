@@ -1,8 +1,28 @@
-# Acme CRM — Vaadin Tutorial Starter
+# Vaadin Tutorial Starter - Acme CRM
 
-The starter project for the **Vaadin Introduction Tutorial**. A Spring Boot + Vaadin app where you build your UI in pure Java — no HTML, no JavaScript.
+The starter project for the [Vaadin Introduction Tutorial](http://youtube.com). A Spring Boot + Vaadin app where you build your UI in pure Java — no HTML, no JavaScript.
 
-This is the **starting point**: it ships the application shell (app name + navigation) and a pre-baked `Customer` backend (a Spring Data JPA repository, service, and seed data in `src/main/resources/data.sql`) that stays dormant until the database chapter. The Customers view starts empty — you build the grid, forms, and full CRUD UI as you follow along.
+```
+src/
+├── main/
+│   ├── java/com/example/
+│   │   ├── Application.java              Spring Boot entry point
+│   │   ├── base/ui/                      shared UI components (incl. MainLayout shell)
+│   │   └── customer/
+│   │       ├── Customer.java             entity
+│   │       ├── CustomerRepository.java   data access
+│   │       ├── CustomerService.java      backend service
+│   │       ├── Status.java
+│   │       └── ui/
+│   │           └── CustomerListView.java the view you build on
+│   └── resources/
+│       ├── application.properties
+│       └── data.sql                      sample customers
+└── test/java/com/example/customer/
+    ├── CustomerServiceTest.java
+    └── ui/
+        └── CustomerListViewTest.java
+```
 
 ---
 

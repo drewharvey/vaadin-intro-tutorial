@@ -64,6 +64,7 @@ Each item gets resolved to **in** (with a chapter), **out**, or **sequel/next-st
 | **Context menu on the grid** | Could carry edit/delete, but adds a second interaction pattern next to the button-based CRUD — maybe a Short instead |
 | **Tooltips / popovers** | Tooltip is a one-liner (`setTooltipText`) — could slot into ch. 13 polish; Popover is a bigger component story |
 | **Responsive layouts** | Too big for a first tutorial; FormLayout is already responsive by default — could be one spoken acknowledgment if it comes up on screen |
+| **Responsive navigation** | Starter deliberately keeps the side nav always visible (no `DrawerToggle`) to avoid layout complexity early. Making the nav collapsible/responsive is a small polish beat (a `DrawerToggle` in the navbar) or a sequel note — not first-tutorial material |
 
 ## Concepts to teach (the concept list, not the feature list, is what makes this land)
 
