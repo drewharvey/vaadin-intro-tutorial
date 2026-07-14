@@ -1,6 +1,8 @@
-# My Application
+# Acme CRM — Vaadin Tutorial Starter
 
-A Spring Boot + Vaadin project. Build your UI in pure Java — no HTML, no JavaScript.
+The starter project for the **Vaadin Introduction Tutorial**. A Spring Boot + Vaadin app where you build your UI in pure Java — no HTML, no JavaScript.
+
+This is the **starting point**: it ships the application shell (app name + navigation) and a pre-baked `Customer` backend (a Spring Data JPA repository, service, and seed data in `src/main/resources/data.sql`) that stays dormant until the database chapter. The Customers view starts empty — you build the grid, forms, and full CRUD UI as you follow along.
 
 ---
 
@@ -14,7 +16,7 @@ From the project folder:
 
 No system Maven required — the wrapper is included. Then open **http://localhost:8080**.
 
-The first start takes ~30 seconds while Maven downloads dependencies. You'll get a runnable **Task List** app: a data grid (Description / Due Date / Creation Date), a Create button, and an empty-state message. When you see that, you're running.
+The first start takes ~30 seconds while Maven downloads dependencies. You'll get the running app shell — the **Acme CRM** header and a **Customers** navigation entry — with an empty Customers page. When you see that, you're running and ready to start the tutorial.
 
 > **Port 8080 already in use?** Stop the other process, or set `server.port=8081` in `src/main/resources/application.properties` and open that port instead.
 >
