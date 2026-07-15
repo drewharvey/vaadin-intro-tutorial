@@ -1,4 +1,4 @@
-package com.example.customer;
+package com.example.backend;
 
 /**
  * The stage a customer is at in the sales pipeline. Stored as a string in the database.

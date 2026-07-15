@@ -1,4 +1,4 @@
-package com.example.customer;
+package com.example.backend;
 
 import jakarta.persistence.*;
 import org.jspecify.annotations.Nullable;

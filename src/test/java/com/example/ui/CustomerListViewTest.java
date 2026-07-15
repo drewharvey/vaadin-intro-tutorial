@@ -1,4 +1,4 @@
-package com.example.customer.ui;
+package com.example.ui;
 
 import com.vaadin.browserless.SpringBrowserlessTest;
 import org.junit.jupiter.api.Test;

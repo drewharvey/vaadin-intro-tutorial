@@ -1,4 +1,4 @@
-package com.example.customer.ui;
+package com.example.ui;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;

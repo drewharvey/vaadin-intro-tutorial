@@ -1,4 +1,4 @@
-package com.example.customer;
+package com.example.backend;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
