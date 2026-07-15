@@ -10,8 +10,8 @@ import com.vaadin.flow.router.Route;
  * out empty: the tutorial's UI code goes here.
  */
 @Route("")
-class CustomerListView extends VerticalLayout {
+class HomeView extends VerticalLayout {
 
-    CustomerListView() {
+    HomeView() {
     }
 }
