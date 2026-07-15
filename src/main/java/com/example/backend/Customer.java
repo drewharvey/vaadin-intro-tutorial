@@ -1,7 +1,6 @@
 package com.example.backend;
 
 import jakarta.persistence.*;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
 
@@ -17,7 +16,6 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
-    @Nullable
     private Long id;
 
     @Column(name = "first_name", nullable = false)
@@ -34,7 +32,6 @@ public class Customer {
     private Status status = Status.LEAD;
 
     @Column(name = "customer_since")
-    @Nullable
     private LocalDate customerSince;
 
     public Customer() {
@@ -42,7 +39,7 @@ public class Customer {
     }
 
     public Customer(String firstName, String lastName, String email, Status status,
-            @Nullable LocalDate customerSince) {
+            LocalDate customerSince) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -50,7 +47,7 @@ public class Customer {
         this.customerSince = customerSince;
     }
 
-    public @Nullable Long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -86,11 +83,11 @@ public class Customer {
         this.status = status;
     }
 
-    public @Nullable LocalDate getCustomerSince() {
+    public LocalDate getCustomerSince() {
         return customerSince;
     }
 
-    public void setCustomerSince(@Nullable LocalDate customerSince) {
+    public void setCustomerSince(LocalDate customerSince) {
         this.customerSince = customerSince;
     }
 
