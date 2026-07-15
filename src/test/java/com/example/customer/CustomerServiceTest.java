@@ -9,6 +9,11 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Tests for {@link CustomerService}, running against the real in-memory database (seeded by
+ * {@code data.sql}). {@code @Transactional} rolls back each test's changes afterwards, so tests
+ * leave the database as they found it.
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @Transactional
 class CustomerServiceTest {

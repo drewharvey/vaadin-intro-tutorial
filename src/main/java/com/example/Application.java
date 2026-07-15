@@ -8,6 +8,14 @@ import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 
+/**
+ * The starting point of the application. Running {@code main} starts an embedded web server and
+ * the app itself — there is no separate server to install or deploy to.
+ * <p>
+ * The annotations configure the application as a whole: {@code @SpringBootApplication} turns on
+ * Spring Boot, which creates the application's objects and wires them together, and the two
+ * {@code @StyleSheet} annotations load Vaadin's Aura theme and this app's own styles.
+ */
 @SpringBootApplication
 @StyleSheet(Aura.STYLESHEET)
 @StyleSheet("styles.css") // Your custom styles

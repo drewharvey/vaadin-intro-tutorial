@@ -5,6 +5,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * The backend the UI talks to for loading, saving, and deleting customers. It's a plain Java
+ * class — views call these methods directly; there are no REST endpoints in between.
+ * <p>
+ * {@code @Service} tells Spring to create one shared instance and hand it to any class that
+ * declares it as a constructor parameter. {@code @Transactional} runs each method inside a
+ * database transaction.
+ */
 @Service
 public class CustomerService {
 

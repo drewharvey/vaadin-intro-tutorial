@@ -5,6 +5,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
 
+/**
+ * A customer record: a plain Java class holding the fields the UI shows and edits. The JPA
+ * annotations ({@code @Entity}, {@code @Column}, and friends) map the class to the
+ * {@code customer} database table so instances can be loaded from and saved to the database.
+ */
 @Entity
 @Table(name = "customer")
 public class Customer {

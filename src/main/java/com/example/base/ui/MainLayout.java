@@ -15,6 +15,11 @@ import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.menu.MenuConfiguration;
 import com.vaadin.flow.server.menu.MenuEntry;
 
+/**
+ * The application shell: the frame shown around every view, with the app logo and name plus a
+ * side navigation menu. The {@code @Layout} annotation tells Vaadin to wrap each view in this
+ * layout. The menu builds itself — every view annotated with {@code @Menu} gets an entry.
+ */
 @Layout
 public final class MainLayout extends AppLayout {
 
