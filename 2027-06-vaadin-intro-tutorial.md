@@ -58,7 +58,7 @@ Each item gets resolved to **in** (with a chapter), **out**, or **sequel/next-st
 | Idea | Quick read on cost/fit |
 |---|---|
 | **Keyboard shortcuts** — e.g. `saveButton.addClickShortcut(Key.ENTER)` | One line; natural fit in ch. 10–11 (Enter = save in the form/dialog). Tier-3-style: use, don't teach |
-| **More view config** — `@PageTitle`; `@Route` explained deeper; `@Menu` | `@PageTitle` is a cheap one-liner in ch. 4 (browser tab visibly changes). `@Menu` could replace ch. 13's hard-coded nav items — deferred to keep the shell build simple. Deeper `@Route` risks bloating C2 |
+| **More view config** — `@PageTitle`; `@Route` explained deeper; `@Menu` | **Resolved → out:** `@PageTitle` cut (removed from the code — one less annotation to explain); `@Menu` not covered in this tutorial (sequel material with dynamic menus); deeper `@Route` stays out (bloats C2) |
 | **CSS styling** | **Resolved → in (ch. 14, beat 3):** brief "how CSS fits" beat — the `.app-name` rule styling the shell's app name (via `addClassName(...)`), after the Java-first polish and theming beats; full branding stays with the "Brand Your Vaadin App" tease |
 | **Route parameters** (passing data to a view) | No motivating use in the current two views — a natural sequel topic together with dynamic menus |
 | **File uploads** | New component + backend handling, and the flat entity has no file field — likely its own video |
@@ -94,7 +94,7 @@ Each item gets resolved to **in** (with a chapter), **out**, or **sequel/next-st
 - **Notification** — the feedback tool in the basics demo; keep moving.
 - **FormLayout** — "a layout that arranges fields nicely."
 - **Custom CSS / theming internals** — ch. 14 beat 3 shows exactly one small example (the `.app-name` rule on the shell's app name, class applied via `addClassName(...)`, plain CSS values), and the pasted theme-builder overrides get a one-sentence explanation ("these are CSS variable overrides"); no selector deep-dive, no stylesheet architecture. Aura's "good by default" gets said early; the full theming/branding story belongs to the "Brand Your Vaadin App" mini-tutorial (teased in ch. 14).
-- **`@Menu` / dynamic menus** — out of scope; the ch. 13 shell uses hard-coded `SideNavItem`s. "Views can register themselves in the menu automatically" is at most one spoken sentence.
+- **`@Menu` / dynamic menus** — not covered in this tutorial; the ch. 13 shell uses hard-coded `SideNavItem`s. Sequel material.
 - **Dialog / ConfirmDialog** — taught by use in ch. 11 (~2 lines each: create, add form, open / confirm-then-delete); no dialog API tour.
 - **Form component extraction** — extracting the form into its own class (needed to reuse it in the Dialog) is a quick composition beat in ch. 11, not a custom-components lesson. Design decisions locked: the form class *owns its Binder* (view never touches it — the extraction simplifies, not complicates); save is reported back via a **plain lambda callback** (`setOnSave(...)`), not custom component events — it reuses the listener pattern (C4) on the viewer's own component; the inline details area and the dialog each hold their **own instance** of the form class.
 - **JPA/Spring Data internals** — the ch. 12 backend is toured, not taught; no annotation-by-annotation walkthrough.
