@@ -1,4 +1,4 @@
-# Vaadin Tutorial Starter - Acme CRM
+# Vaadin Tutorial Starter - Compass CRM
 
 The starter project for the [Vaadin Introduction Tutorial](http://youtube.com). A Spring Boot + Vaadin app where you build your UI in pure Java — no HTML, no JavaScript.
 
@@ -7,21 +7,21 @@ src/
 ├── main/
 │   ├── java/com/example/
 │   │   ├── Application.java              Spring Boot entry point
-│   │   ├── base/ui/                      shared UI components (incl. MainLayout shell)
-│   │   └── customer/
+│   │   ├── ui/
+│   │   │   └── HomeView.java             the empty first view — the tutorial starts here
+│   │   └── backend/                      pre-baked data layer (ignored until the database chapter)
 │   │       ├── Customer.java             entity
 │   │       ├── CustomerRepository.java   data access
 │   │       ├── CustomerService.java      backend service
-│   │       ├── Status.java
-│   │       └── ui/
-│   │           └── CustomerListView.java the view you build on
+│   │       └── Status.java
 │   └── resources/
 │       ├── application.properties
 │       └── data.sql                      sample customers
-└── test/java/com/example/customer/
-    ├── CustomerServiceTest.java
+└── test/java/com/example/
+    ├── backend/
+    │   └── CustomerServiceTest.java
     └── ui/
-        └── CustomerListViewTest.java
+        └── HomeViewTest.java
 ```
 
 ---
@@ -36,7 +36,7 @@ From the project folder:
 
 No system Maven required — the wrapper is included. Then open **http://localhost:8080**.
 
-The first start takes ~30 seconds while Maven downloads dependencies. You'll get the running app shell — the **Acme CRM** header and a **Customers** navigation entry — with an empty Customers page. When you see that, you're running and ready to start the tutorial.
+The first start takes ~30 seconds while Maven downloads dependencies. You'll get the running app — an empty home page for now, since the **Compass CRM** UI is what you build in the tutorial. When the blank page loads without errors, you're running and ready to start.
 
 > **Port 8080 already in use?** Stop the other process, or set `server.port=8081` in `src/main/resources/application.properties` and open that port instead.
 >
