@@ -12,3 +12,8 @@
 - [ ] See if we can make the edit details panel look better (go over the table?)
 - [ ] Views have no browser tab title since dropping `@PageTitle` — check how the
       tab looks on camera; decide whether to set a title some other way or ignore.
+- [ ] When the repo's publishing story is decided: add a README section pointing at
+      the `tutorial-steps` branch ("follow along commit by commit"), and consider
+      tags (`ch04`…`ch14`) as stable jump points / nicer GitHub URLs. Remember the
+      branch is a generated artifact — regenerate it when the tutorial changes,
+      don't patch its history.
