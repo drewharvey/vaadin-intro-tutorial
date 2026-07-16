@@ -7,8 +7,12 @@ to the **`tutorial-complete` branch** (the finished app), chapter by chapter, fo
 Each step shows the code written or changed in that chapter — block-level changes and the
 significant parts, not every line. **First-time concepts are called out at the top of each step.**
 The final state of every file matches `tutorial-complete` exactly; the intermediate snapshots are
-reconstructions that follow the outline's teaching decisions (manual tedium before Binder, text
-button before icon, etc.).
+reconstructions that follow the outline's teaching decisions (manual tedium before Binder,
+`setBean` before buffered mode, text button before icon, plain components before any styling).
+
+Two standing rules across chapters 4–13: **no theme variants, custom CSS classes, or
+accessibility annotations** — every styling API waits for chapter 14 — and temporary "prove it"
+code (the route-test button, the auto-column grid) is shown, then removed.
 
 Chapters 1–2 (intro, "What is Vaadin?") and 15 (wrap-up) have no code and are omitted here apart
 from their concept notes.
@@ -19,7 +23,9 @@ from their concept notes.
 
 *No code written. Concepts: none (Vaadin Copilot/dev-mode indicator acknowledged in one sentence — "part of dev mode, ignore it for this tutorial").*
 
-Download the starter, open it in an IDE, run it:
+Download the starter and open it in the IDE. **Run it from the IDE** (the Run button on
+`Application.java`) — that's the workflow used for the rest of the tutorial. Mention the
+alternative for the terminal-inclined, since no local Maven is needed:
 
 ```bash
 ./mvnw spring-boot:run
@@ -53,27 +59,28 @@ class HomeView extends VerticalLayout {
 }
 ```
 
-`@Route("")` maps it to the root URL. To prove the code→browser connection, add one line to the
-constructor and watch the page change:
+`@Route("")` maps it to the root URL. No throwaway hello here — go straight to the first real
+component. Add a `TextField` and watch the page change:
 
 ```java
 HomeView() {
-    add(new Paragraph("Welcome to Polaris CRM"));
+    var name = new TextField("Name");
+    add(name);
 }
 ```
 
-*(This line is temporary — chapter 5 replaces it. The page is bare on purpose: the frame around
-it — the app shell — is built in chapter 13.)*
+That one field *is* the start of the chapter 5–6 scene. The page is bare on purpose: the frame
+around it — the app shell — is built in chapter 13.
 
 ---
 
 ## Step 2 — Chapter 5: Components & layouts
 
 **Concept introduced: C3 — components are UI elements, layouts arrange them, `add()` composes,
-and layouts nest** (a layout *is* a component).
+and layouts nest** (a layout *is* a component — stated here, shown concretely in chapter 6).
 
-Replace the paragraph with real components in `HomeView`. The two buttons go in a
-`HorizontalLayout` *inside* the view's `VerticalLayout` — that's nesting, shown not told:
+Add a button under the field. The view extends `VerticalLayout`, so added components stack top
+to bottom:
 
 ```java
 HomeView() {
@@ -81,15 +88,12 @@ HomeView() {
     add(name);
 
     var sayHelloBtn = new Button("Say hello");
-    var resetBtn = new Button("Reset");
-
-    var buttonsLayout = new HorizontalLayout();
-    buttonsLayout.add(sayHelloBtn, resetBtn);
-    add(buttonsLayout);
+    add(sayHelloBtn);
 }
 ```
 
-On screen: a text field with two buttons side by side beneath it. They don't do anything yet.
+On screen: a text field with a button beneath it. It doesn't do anything yet — that's the next
+chapter, one continuous scene across the cut.
 
 ---
 
@@ -97,28 +101,35 @@ On screen: a text field with two buttons side by side beneath it. They don't do 
 
 **Concepts introduced: C4 — listeners are *the* interaction pattern ("they all look like this"),
 and C5 — field values via `getValue()`/`setValue()`.** Lambda syntax gets a brief explanation at
-first use.
+first use. C3 gets reinforced at the end.
 
-Wire the buttons up:
+**First:** wire the button up — read the field, show feedback:
 
 ```java
 var sayHelloBtn = new Button("Say hello");
 sayHelloBtn.addClickListener(event -> {
     Notification.show("Hello " + name.getValue());
 });
+```
 
+`Notification` is Tier 3: "the feedback tool," one sentence. The generalization moment lands
+here: every Vaadin component reacts through listeners, and they all look like this —
+`addSomethingListener(event -> ...)`.
+
+**Then:** "let's add a button to clear the name field." The Reset button *writes* the field —
+`setValue("")` — and grouping the two buttons side by side reinforces the layout model from
+chapter 5 (a `HorizontalLayout` nested inside the view's `VerticalLayout`):
+
+```java
 var resetBtn = new Button("Reset");
 resetBtn.addClickListener(event -> {
     name.setValue("");
 });
+
+var buttonsLayout = new HorizontalLayout();
+buttonsLayout.add(sayHelloBtn, resetBtn);
+add(buttonsLayout);
 ```
-
-- **Say hello** *reads* the field (`getValue()`) and shows a `Notification` (Tier 3: "the feedback
-  tool," one sentence).
-- **Reset** *writes* the field (`setValue("")`).
-
-The generalization moment: every Vaadin component reacts through listeners, and they all look
-like this — `addSomethingListener(event -> ...)`.
 
 `HomeView` is now finished; it stays exactly like this in the final app.
 
@@ -129,45 +140,67 @@ like this — `addSomethingListener(event -> ...)`.
 **Concept introduced: C6 — Grid** (the ~3-lines credibility moment). **C2 revisited:** this is a
 *new, second* view.
 
-Create `CustomerListView` in the `ui` package. Until chapter 13 there's no navigation — you reach
-it by typing `/customers` in the browser.
+**First, prove the route.** Create `CustomerListView` in the `ui` package with just a button in
+it, then type `/customers` in the browser — the view appears. That's `@Route` doing its job:
 
 ```java
 @Route("customers")
 class CustomerListView extends VerticalLayout {
 
-    final Grid<Customer> grid = new Grid<>(Customer.class, false);
-
     CustomerListView() {
-        grid.addColumn(Customer::getFirstName).setHeader("First name");
-        grid.addColumn(Customer::getLastName).setHeader("Last name");
-        grid.addColumn(Customer::getEmail).setHeader("Email");
-        grid.addColumn(Customer::getStatus).setHeader("Status");
-        grid.addColumn(Customer::getCustomerSince).setHeader("Customer since");
-        grid.setItems(getSampleCustomers());
-
-        grid.setSizeFull();
-        setSizeFull();
-        add(grid);
+        add(new Button("I'm the customers view!"));
     }
+}
+```
 
-    private List<Customer> getSampleCustomers() {
-        return List.of(
-                new Customer("Alice", "Nguyen", "alice.nguyen@meridian-labs.com",
-                        Status.CUSTOMER, LocalDate.of(2023, 1, 15)),
-                new Customer("Bob", "Martinez", "bob.martinez@bluefern.io",
-                        Status.CUSTOMER, LocalDate.of(2022, 11, 3)),
-                new Customer("Carol", "Schmidt", "carol.schmidt@meridian-labs.com",
-                        Status.PROSPECT, null));
-    }
+Remove the button. **Then bring in the data** — a hardcoded list of the `Customer` class from
+the `backend` package, used here as a plain POJO:
+
+```java
+private List<Customer> getSampleCustomers() {
+    return List.of(
+            new Customer("Alice", "Nguyen", "alice.nguyen@meridian-labs.com",
+                    Status.CUSTOMER, LocalDate.of(2023, 1, 15)),
+            new Customer("Bob", "Martinez", "bob.martinez@bluefern.io",
+                    Status.CUSTOMER, LocalDate.of(2022, 11, 3)),
+            new Customer("Carol", "Schmidt", "carol.schmidt@meridian-labs.com",
+                    Status.PROSPECT, null));
+}
+```
+
+**Now the wow:** give Grid the class and it generates the columns by itself:
+
+```java
+var grid = new Grid<>(Customer.class);
+grid.setItems(getSampleCustomers());
+add(grid);
+```
+
+A full data table from three lines. **Then take control:** auto-columns show everything
+(including `id`) in bean order — for real apps you usually pick the columns yourself. Switch to
+a plain `Grid` and declare them:
+
+```java
+final Grid<Customer> grid = new Grid<>();
+
+CustomerListView() {
+    grid.addColumn(Customer::getFirstName).setHeader("First name");
+    grid.addColumn(Customer::getLastName).setHeader("Last name");
+    grid.addColumn(Customer::getEmail).setHeader("Email");
+    grid.addColumn(Customer::getStatus).setHeader("Status");
+    grid.addColumn(Customer::getCustomerSince).setHeader("Customer since");
+    grid.setItems(getSampleCustomers());
+
+    grid.setSizeFull();
+    setSizeFull();
+    add(grid);
 }
 ```
 
 Two acknowledgment beats, one sentence each:
 
-- `Customer` comes from the `backend` package and carries JPA annotations — *"ignore those for
-  now; they're how this becomes a database table — that's chapter 12."* Here it's used as a plain
-  POJO in a hardcoded list.
+- `Customer` carries JPA annotations — *"ignore those for now; they're how this becomes a
+  database table — that's chapter 12."*
 - `Customer::getFirstName` is a method reference — shorthand for `customer -> customer.getFirstName()`.
 
 ---
@@ -186,25 +219,18 @@ grid.addColumn(Customer::getFirstName)
 // ...same for the other columns
 ```
 
-Add a search field above the grid and re-filter on every change. `ValueChangeMode.LAZY` means
-"fire while typing, but only after a pause":
+**Start the filter minimal** — a bare field wired to a method that decides what the grid shows:
 
 ```java
 final TextField filter = new TextField();
 
 private HorizontalLayout createToolbar() {
-    filter.setPlaceholder("Search...");
-    filter.setClearButtonVisible(true);
-    filter.setValueChangeMode(ValueChangeMode.LAZY);
     filter.addValueChangeListener(event -> updateList());
-
     return new HorizontalLayout(filter);
 }
 ```
 
-`updateList()` becomes the single place that decides what the grid shows. The search matches more
-than just the name — modern search covers email and status too (a simple stream; one sentence on
-what the chain does):
+**First version of `updateList()` — first name only,** to see it work end to end:
 
 ```java
 private void updateList() {
@@ -214,15 +240,31 @@ private void updateList() {
     if (query != null && !query.isBlank()) {
         var lower = query.toLowerCase();
         customers = customers.stream()
-                .filter(customer -> customer.getEmail().toLowerCase().contains(lower)
-                        || customer.getFirstName().toLowerCase().contains(lower)
-                        || customer.getLastName().toLowerCase().contains(lower)
-                        || customer.getStatus().toString().toLowerCase().contains(lower))
+                .filter(customer -> customer.getFirstName().toLowerCase().contains(lower))
                 .toList();
     }
 
     grid.setItems(customers);
 }
+```
+
+(The stream gets one sentence: keep the customers whose name contains the search text.)
+
+**Then broaden it** — modern search matches more than a name:
+
+```java
+.filter(customer -> customer.getEmail().toLowerCase().contains(lower)
+        || customer.getFirstName().toLowerCase().contains(lower)
+        || customer.getLastName().toLowerCase().contains(lower)
+        || customer.getStatus().toString().toLowerCase().contains(lower))
+```
+
+**Final step — polish the field:** a placeholder, and `ValueChangeMode.LAZY` ("fire while
+typing, but only after a pause"):
+
+```java
+filter.setPlaceholder("Search...");
+filter.setValueChangeMode(ValueChangeMode.LAZY);
 ```
 
 The constructor now does `add(createToolbar(), grid)` and calls `updateList()` instead of
@@ -236,7 +278,7 @@ The constructor now does `add(createToolbar(), grid)` and calls `updateList()` i
 deliberately painfully.** This chapter builds the anti-pattern that Binder kills in chapter 10.
 
 Add detail fields beside the grid. `FormLayout` is Tier 3: "a layout that arranges fields nicely."
-`ComboBox` and `DatePicker` are just fields like `TextField` — same `setValue`/`getValue` contract:
+`ComboBox` and `DatePicker` are just fields — same `setValue`/`getValue` contract:
 
 ```java
 final TextField firstName = new TextField("First name");
@@ -280,13 +322,13 @@ back. There has to be a better way. (There is. Next chapter.)
 
 **Concept introduced: C7 — Binder,** arriving as the relief for chapter 9's tedium.
 
-A `Binder` connects the fields to the bean's getters/setters once; from then on it moves the data
-both ways. Add validation while binding — required fields plus one real rule:
+A `Binder` connects the fields to the bean's getters/setters once; from then on it moves the
+data both ways. Validation happens while binding — required fields plus one real rule:
 
 ```java
 private final Binder<Customer> binder = new Binder<>(Customer.class);
 
-// in the constructor — replaces nothing yet, sits next to the fields:
+// in the constructor:
 binder.forField(firstName)
         .asRequired("First name is required")
         .bind(Customer::getFirstName, Customer::setFirstName);
@@ -304,19 +346,26 @@ binder.forField(customerSince)
         .bind(Customer::getCustomerSince, Customer::setCustomerSince);
 ```
 
-The five manual `setValue()` lines collapse into one:
+**Start with the simplest mode — `setBean` (unbuffered).** The five manual `setValue()` lines
+collapse into one, and every edit writes straight through into the bean as you type:
 
 ```java
 grid.addSelectionListener(event -> {
     var customer = event.getFirstSelectedItem().orElse(null);
-    binder.readBean(customer);   // was: five setValue() calls
+    binder.setBean(customer);   // was: five setValue() calls
 });
 ```
 
-Save and Discard buttons show why *buffered* mode is worth having: `writeBean` copies the edits
-into the bean only if validation passes; Discard is just reading the bean again.
+Show it working: edit a name, and the bean already has the change. **Then motivate the switch:**
+we want the user to *decide* — click Save, or throw the edits away. That's *buffered* mode:
+`readBean` copies values into the fields; `writeBean` copies them back only if validation passes:
 
 ```java
+grid.addSelectionListener(event -> {
+    var customer = event.getFirstSelectedItem().orElse(null);
+    binder.readBean(customer);   // buffered: fields hold a copy until you write back
+});
+
 var save = new Button("Save");
 save.addClickListener(event -> {
     try {
@@ -332,20 +381,20 @@ var discard = new Button("Discard");
 discard.addClickListener(event -> binder.readBean(selectedCustomer));
 ```
 
-Spoken, never shown: the alternative `setBean()` is *unbuffered* — every keystroke writes straight
-into the bean, no explicit save/discard.
+No styling on the buttons yet — they're plain until chapter 14.
 
 ---
 
 ## Step 8 — Chapter 11: Add & delete — completing CRUD with dialogs
 
-**Concepts by use, not lessons:** component extraction (composition), `Dialog`, `ConfirmDialog`
-(~2 lines each). The callback (`setOnSave`) is the listener pattern (C4) on a component you built
-yourself.
+**Concepts by use, not lessons:** component extraction (composition), `Dialog`, `ConfirmDialog`.
+One acknowledging sentence: Vaadin has a more robust mechanism for custom component events — for
+this tutorial we keep it simple with single callbacks, which still follow the same event-driven
+component concept (C4).
 
 **Beat 1 — extract the form.** To reuse the form in a create-dialog, it moves into its own class.
 `CustomerForm` owns its fields, its `Binder`, and its buttons; the view never touches binding
-logic again. Results come back through plain callbacks:
+logic again:
 
 ```java
 public class CustomerForm extends Composite<FormLayout> {
@@ -423,18 +472,17 @@ private void editCustomer(Customer customer) {
 ```
 
 **Beat 2 — create, via Dialog.** A toolbar button opens a *fresh* `CustomerForm` instance in a
-`Dialog` with a fresh bean — same class, zero duplication. It starts as a text button:
+`Dialog` with a fresh bean — same class, zero duplication. It starts as a text button…
 
 ```java
 var newButton = new Button("Add Customer", event -> openCreateDialog());
 ```
 
-…and in the same chapter swaps to icon-only — the "icons are easy" moment:
+…and in the same chapter swaps to icon-only — the "icons are easy" moment (no theme variants —
+those wait for chapter 14):
 
 ```java
 var newButton = new Button(VaadinIcon.PLUS.create(), event -> openCreateDialog());
-newButton.addThemeVariants(ButtonVariant.PRIMARY);
-newButton.setAriaLabel("Add customer");
 ```
 
 ```java
@@ -455,24 +503,37 @@ private void openCreateDialog() {
 }
 ```
 
-**Beat 3 — delete, via ConfirmDialog:**
+**Beat 3 — delete.** Start honest: the Delete button just deletes, immediately:
 
 ```java
 private void confirmDelete(Customer customer) {
-    var confirm = new ConfirmDialog();
-    confirm.setHeader("Delete customer?");
-    confirm.setText("Are you sure you want to delete %s %s?"
-            .formatted(customer.getFirstName(), customer.getLastName()));
-    confirm.setCancelable(true);
-    confirm.setConfirmText("Delete");
-    confirm.setConfirmButtonTheme("error primary");
-    confirm.addConfirmListener(event -> {
-        // real delete arrives in ch. 12
-        updateList();
-        editCustomer(null);
-    });
-    confirm.open();
+    // deletes with no warning — is that what we want?
+    updateList();
+    editCustomer(null);
 }
+```
+
+Then ask the question out loud — *shouldn't the user confirm an action like this?* — and reach
+for `ConfirmDialog`, most basic form first:
+
+```java
+var confirm = new ConfirmDialog();
+confirm.setHeader("Delete customer?");
+confirm.addConfirmListener(event -> {
+    // real delete arrives in ch. 12
+    updateList();
+    editCustomer(null);
+});
+confirm.open();
+```
+
+Then show a bit of its API — a proper message and a cancel path:
+
+```java
+confirm.setText("Are you sure you want to delete %s %s?"
+        .formatted(customer.getFirstName(), customer.getLastName()));
+confirm.setCancelable(true);
+confirm.setConfirmText("Delete");
 ```
 
 CRUD is now complete against the in-memory list.
@@ -484,7 +545,8 @@ CRUD is now complete against the in-memory list.
 **Concept introduced: C8 — views call plain Java services. No REST layer.** This pays off the
 chapter-2 claim: no endpoints, no DTOs, no fetch calls.
 
-**Beat 1 — tour, don't build.** Open the `backend` package for the first time:
+**Beat 1 — tour, don't build.** Open the `backend` package for the first time. It's been sitting
+there since chapter 3:
 
 ```
 backend/
@@ -535,7 +597,7 @@ List<Customer> customers = customerService.findAll();   // was: getSampleCustome
 customerService.save(customer);                          // added before updateList()
 
 // in confirmDelete():
-customerService.delete(customer);                         // added before updateList()
+customerService.delete(customer);                        // added before updateList()
 ```
 
 Delete `getSampleCustomers()`. The UI code barely changed — that's the architecture lesson.
@@ -550,7 +612,8 @@ composition (C3) revisited at app scale. First work outside a view class.
 
 Motivation: two views exist, but `/customers` is reachable only by typing the URL.
 
-New class `MainLayout` — the complete file:
+**Beat 1 — the frame.** New class `MainLayout` with just the logo and app name; then straight to
+the browser — *both* views are suddenly wrapped in it, and neither view changed:
 
 ```java
 @Layout
@@ -566,33 +629,50 @@ public final class MainLayout extends AppLayout {
         var header = new HorizontalLayout(appLogo, appName);
         header.setPadding(true);
 
-        var nav = new SideNav();
-        nav.addItem(new SideNavItem("Home", HomeView.class, VaadinIcon.HOME.create()));
-        nav.addItem(new SideNavItem("Customers", CustomerListView.class, VaadinIcon.USERS.create()));
-
-        addToDrawer(header, nav);
+        addToDrawer(header);
     }
 }
 ```
 
-- `@Layout` tells Vaadin: wrap every view in this. Neither view changes — refresh, and both are
-  framed.
-- `AppLayout` is a component with drawer/navbar slots; `SideNav` items point at view *classes* —
-  no URL strings.
-- The frame is just another component tree: header + nav composed with the same layouts as ch. 5.
+- `@Layout` tells Vaadin: wrap every view in this.
+- `AppLayout` is a component with drawer/navbar slots; the frame is just another component tree,
+  composed with the same layouts as chapter 5.
 
-*(The `.app-name` CSS class shown in the final file arrives in chapter 14, beat 3.)*
+**Beat 2 — the navigation.** A `SideNav` whose items point at view *classes* — no URL strings:
+
+```java
+var nav = new SideNav();
+nav.addItem(new SideNavItem("Home", HomeView.class, VaadinIcon.HOME.create()));
+nav.addItem(new SideNavItem("Customers", CustomerListView.class, VaadinIcon.USERS.create()));
+
+addToDrawer(header, nav);
+```
+
+*(The `.app-name` CSS class in the final file arrives in chapter 14, beat 3.)*
 
 ---
 
 ## Step 11 — Chapter 14: Styling — make it look professional
 
-*No new core concept — the visual-payoff chapter, three beats, Java-first.*
+*No new core concept — the visual-payoff chapter, four beats, Java-first. This is where styling
+APIs appear for the first time: chapters 4–13 used none.*
 
-**Beat 1 — polish what we built, pure Java.** Theme variants got used along the way
-(`ButtonVariant.PRIMARY` on Save and the add-button, `ERROR`+`TERTIARY` on Delete); recap them
-as *the* first answer to "how do I style this?" Then spacing and sizing polish on the Customers
-view — a proper toolbar with a title, and a width cap on the form:
+**Beat 1 — polish what we built, pure Java.** Theme variants debut — the first answer to "how do
+I style this?":
+
+```java
+// CustomerForm — the form's buttons:
+save.addThemeVariants(ButtonVariant.PRIMARY);
+delete.addThemeVariants(ButtonVariant.ERROR, ButtonVariant.TERTIARY);
+
+// CustomerListView — the add-button:
+newButton.addThemeVariants(ButtonVariant.PRIMARY);
+
+// confirmDelete() — the dialog's confirm button:
+confirm.setConfirmButtonTheme("error primary");
+```
+
+Then spacing and sizing polish — a proper toolbar with a title, and a width cap on the form:
 
 ```java
 // CustomerListView — toolbar gets a title pushed to the left edge:
@@ -607,11 +687,42 @@ toolbar.setFlexGrow(1, title);
 getContent().setMaxWidth("300px");
 ```
 
-**Beat 2 — theming.** Aura vs Lumo in one sentence. Color schemes get a spoken mention only:
-`@ColorScheme(ColorScheme.Value.DARK)` on the app shell class, or `Page::setColorScheme()` at
-runtime — no toggle built. Then the Aura **theme builder**
-(https://vaadin.github.io/web-components/aura.html): pick the *Sunset Glass* preset (Light),
-copy, paste into `styles.css` — the whole app re-skins in one paste:
+**Beat 2 — theming.** Toggle the whole app between Aura and Lumo by swapping one line in
+`Application.java` — everything re-themes, nothing breaks:
+
+```java
+@StyleSheet(Aura.STYLESHEET)   // ⇄ swap with Lumo.STYLESHEET, then back
+```
+
+Then Aura's light and dark color schemes, flipped the same way:
+
+```java
+@ColorScheme(ColorScheme.Value.DARK)   // on the Application class
+```
+
+Mention: `Page::setColorScheme()` does the same at runtime — you could let your users decide.
+
+**Beat 3 — how CSS fits (brief).** Exactly one example: a class name applied in Java, one rule
+in `styles.css`. Plain values on purpose; CSS variables are mentioned, not used:
+
+```java
+// MainLayout:
+appName.addClassName("app-name");
+```
+
+```css
+.app-name {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+```
+
+CSS is the power tool — the full branding story is the "Brand Your Vaadin App" video (tease).
+
+**Beat 4 — the Aura theme builder (the fun extra).** Show off the tool
+(https://vaadin.github.io/web-components/aura.html) — presets, randomize, customize — then pick
+the *Sunset Glass* preset (Light), copy, and paste into `styles.css`. The overrides are CSS
+variables — recognizable from beat 3 — and the whole app re-skins in one paste:
 
 ```css
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
@@ -628,25 +739,6 @@ html {
 }
 /* ...plus the generated font-weight overrides... */
 ```
-
-One sentence: *these are CSS variable overrides* — which sets up beat 3.
-
-**Beat 3 — how CSS fits (brief).** Exactly one example: a class name applied in Java, one rule in
-`styles.css`. Plain values on purpose; CSS variables are mentioned, not used:
-
-```java
-// MainLayout:
-appName.addClassName("app-name");
-```
-
-```css
-.app-name {
-    font-weight: bold;
-    font-size: 1.2rem;
-}
-```
-
-CSS is the power tool — the full branding story is the "Brand Your Vaadin App" video (tease).
 
 ---
 
