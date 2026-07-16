@@ -1,4 +1,4 @@
-# Vaadin Tutorial Starter - Compass CRM
+# Vaadin Tutorial Starter - Polaris CRM
 
 The starter project for the [Vaadin Introduction Tutorial](http://youtube.com). A Spring Boot + Vaadin app where you build your UI in pure Java — no HTML, no JavaScript.
 
@@ -36,7 +36,7 @@ From the project folder:
 
 No system Maven required — the wrapper is included. Then open **http://localhost:8080**.
 
-The first start takes ~30 seconds while Maven downloads dependencies. You'll get the running app — an empty home page for now, since the **Compass CRM** UI is what you build in the tutorial. When the blank page loads without errors, you're running and ready to start.
+The first start takes ~30 seconds while Maven downloads dependencies. You'll get the running app — an empty home page for now, since the **Polaris CRM** UI is what you build in the tutorial. When the blank page loads without errors, you're running and ready to start.
 
 > **Port 8080 already in use?** Stop the other process, or set `server.port=8081` in `src/main/resources/application.properties` and open that port instead.
 >
