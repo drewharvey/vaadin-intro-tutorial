@@ -6,9 +6,8 @@ to the **`tutorial-complete` branch** (the finished app), chapter by chapter, fo
 
 Each step shows the code written or changed in that chapter — block-level changes and the
 significant parts, not every line. **First-time concepts are called out at the top of each step.**
-The final state of every file matches `tutorial-complete` exactly; the intermediate snapshots are
-reconstructions that follow the outline's teaching decisions (manual tedium before Binder,
-`setBean` before buffered mode, text button before icon, plain components before any styling).
+Every step was validated end-to-end on the `step-validation` branch (one commit per step); the
+final state is identical to `tutorial-complete`.
 
 Two standing rules across chapters 4–13: **no theme variants, custom CSS classes, or
 accessibility annotations** — every styling API waits for chapter 14 — and temporary "prove it"
@@ -59,7 +58,7 @@ class HomeView extends VerticalLayout {
 }
 ```
 
-`@Route("")` maps it to the root URL. No throwaway hello here — go straight to the first real
+`@Route("")` maps it to the root URL. No throwaway hello — go straight to the first real
 component. Add a `TextField` and watch the page change:
 
 ```java
@@ -176,9 +175,9 @@ grid.setItems(getSampleCustomers());
 add(grid);
 ```
 
-A full data table from three lines. **Then take control:** auto-columns show everything
-(including `id`) in bean order — for real apps you usually pick the columns yourself. Switch to
-a plain `Grid` and declare them:
+A full data table from three lines. **Then take control:** auto-columns show everything in
+alphabetical order — including an awkward, empty `Id` column — so for real apps you usually pick
+the columns yourself. Switch to a plain `Grid` and declare them:
 
 ```java
 final Grid<Customer> grid = new Grid<>();
@@ -210,13 +209,22 @@ Two acknowledgment beats, one sentence each:
 **No new concept — C4 revisited:** a second listener type (*value change*), now motivated by a
 search field.
 
-Sorting is one call per column:
+**Sorting first — with a callback to chapter 7:** the auto-generated columns were sortable out
+of the box; when you declare columns yourself, you opt in. One method per column:
 
 ```java
 grid.addColumn(Customer::getFirstName)
         .setHeader("First name")
         .setSortable(true);
 // ...same for the other columns
+```
+
+**One structural move before the filter:** the sample data becomes a *field* — the single
+in-memory list the whole view works from. (Chapters 8–11 will edit it, add to it, and delete
+from it; regenerating it on every refresh would silently throw those changes away.)
+
+```java
+private final List<Customer> customers = new ArrayList<>(getSampleCustomers());
 ```
 
 **Start the filter minimal** — a bare field wired to a method that decides what the grid shows:
@@ -230,25 +238,26 @@ private HorizontalLayout createToolbar() {
 }
 ```
 
-**First version of `updateList()` — first name only,** to see it work end to end:
+**First version of `updateList()` — first name only,** to see it work end to end (the stream
+gets one sentence: keep the customers whose name contains the search text):
 
 ```java
 private void updateList() {
-    List<Customer> customers = getSampleCustomers();
+    List<Customer> filtered = customers;
 
     var query = filter.getValue();
-    if (query != null && !query.isBlank()) {
+    if (!query.isBlank()) {
         var lower = query.toLowerCase();
-        customers = customers.stream()
+        filtered = customers.stream()
                 .filter(customer -> customer.getFirstName().toLowerCase().contains(lower))
                 .toList();
     }
 
-    grid.setItems(customers);
+    grid.setItems(filtered);
 }
 ```
 
-(The stream gets one sentence: keep the customers whose name contains the search text.)
+(No null-check on `query` — `getValue()` on a TextField is never null; empty means `""`.)
 
 **Then broaden it** — modern search matches more than a name:
 
@@ -323,7 +332,8 @@ back. There has to be a better way. (There is. Next chapter.)
 **Concept introduced: C7 — Binder,** arriving as the relief for chapter 9's tedium.
 
 A `Binder` connects the fields to the bean's getters/setters once; from then on it moves the
-data both ways. Validation happens while binding — required fields plus one real rule:
+data both ways. Validation happens while binding — required fields plus one real rule. The
+binding block is written out in full on camera (it's the heart of the chapter):
 
 ```java
 private final Binder<Customer> binder = new Binder<>(Customer.class);
@@ -358,19 +368,23 @@ grid.addSelectionListener(event -> {
 
 Show it working: edit a name, and the bean already has the change. **Then motivate the switch:**
 we want the user to *decide* — click Save, or throw the edits away. That's *buffered* mode:
-`readBean` copies values into the fields; `writeBean` copies them back only if validation passes:
+`readBean` copies values into the fields; `writeBean` copies them back only if validation passes.
+The view needs to remember which customer is selected:
 
 ```java
+private Customer selectedCustomer;
+
+// the selection listener becomes:
 grid.addSelectionListener(event -> {
-    var customer = event.getFirstSelectedItem().orElse(null);
-    binder.readBean(customer);   // buffered: fields hold a copy until you write back
+    selectedCustomer = event.getFirstSelectedItem().orElse(null);
+    binder.readBean(selectedCustomer);   // buffered: fields hold a copy until you write back
 });
 
 var save = new Button("Save");
 save.addClickListener(event -> {
     try {
         binder.writeBean(selectedCustomer);   // validates, then copies into the bean
-        grid.getDataProvider().refreshAll();
+        updateList();
     } catch (ValidationException e) {
         // errors are already shown on the fields
     }
@@ -379,25 +393,31 @@ save.addClickListener(event -> {
 var discard = new Button("Discard");
 // Buffered mode payoff: re-reading the bean throws away every unsaved edit.
 discard.addClickListener(event -> binder.readBean(selectedCustomer));
+
+// the buttons join the form:
+var form = new FormLayout(firstName, lastName, email, status, customerSince,
+        new HorizontalLayout(save, discard));
 ```
 
-No styling on the buttons yet — they're plain until chapter 14.
+One scripted sentence for the try/catch: *`writeBean` refuses to write invalid data — the
+exception is how it tells us; the field errors are already on screen.* No styling on the buttons
+yet — they're plain until chapter 14.
 
 ---
 
 ## Step 8 — Chapter 11: Add & delete — completing CRUD with dialogs
 
-**Concepts by use, not lessons:** component extraction (composition), `Dialog`, `ConfirmDialog`.
-One acknowledging sentence: Vaadin has a more robust mechanism for custom component events — for
+**Concepts by use, not lessons:** component extraction, `Dialog`, `ConfirmDialog`. One
+acknowledging sentence: Vaadin has a more robust mechanism for custom component events — for
 this tutorial we keep it simple with single callbacks, which still follow the same event-driven
 component concept (C4).
 
 **Beat 1 — extract the form.** To reuse the form in a create-dialog, it moves into its own class.
-`CustomerForm` owns its fields, its `Binder`, and its buttons; the view never touches binding
-logic again:
+`CustomerForm` *extends FormLayout* — it *is* the form — and owns its fields, its `Binder`, and
+its buttons; the view never touches binding logic again:
 
 ```java
-public class CustomerForm extends Composite<FormLayout> {
+public class CustomerForm extends FormLayout {
 
     private final TextField firstName = new TextField("First name");
     // ...the other fields, the Save/Discard/Delete buttons...
@@ -419,15 +439,15 @@ public class CustomerForm extends Composite<FormLayout> {
             }
         });
 
-        getContent().add(firstName, lastName, email, status, customerSince, buttons);
+        var buttons = new HorizontalLayout(save, discard, delete);
+        add(firstName, lastName, email, status, customerSince, buttons);
     }
 
     /** Loads a customer into the form. Pass {@code null} to clear it. */
     public void setCustomer(Customer customer) {
         this.customer = customer;
         binder.readBean(customer);
-        // Delete only makes sense for a customer that has already been saved.
-        delete.setVisible(customer != null && customer.getId() != null);
+        delete.setVisible(customer != null);
     }
 
     public void setOnSave(Consumer<Customer> onSave) { this.onSave = onSave; }
@@ -453,7 +473,6 @@ final CustomerForm form = new CustomerForm();
 
 private void configureForm() {
     form.setOnSave(customer -> {
-        // still the hardcoded list here — the real save arrives in ch. 12
         updateList();
         editCustomer(null);
     });
@@ -485,6 +504,9 @@ those wait for chapter 14):
 var newButton = new Button(VaadinIcon.PLUS.create(), event -> openCreateDialog());
 ```
 
+The dialog gets a plain Close button in its footer, and the new customer joins the in-memory
+list on save:
+
 ```java
 private void openCreateDialog() {
     var dialogForm = new CustomerForm();
@@ -494,7 +516,11 @@ private void openCreateDialog() {
     dialog.setHeaderTitle("New customer");
     dialog.add(dialogForm);
 
+    var close = new Button("Close", event -> dialog.close());
+    dialog.getFooter().add(close);
+
     dialogForm.setOnSave(customer -> {
+        customers.add(customer);
         updateList();
         dialog.close();
     });
@@ -503,11 +529,15 @@ private void openCreateDialog() {
 }
 ```
 
+*Notice:* the dialog also shows a **Delete** button — for a customer that doesn't exist yet.
+Point at it, hold the thought: chapter 12 fixes it properly, once customers have real identities.
+
 **Beat 3 — delete.** Start honest: the Delete button just deletes, immediately:
 
 ```java
 private void confirmDelete(Customer customer) {
     // deletes with no warning — is that what we want?
+    customers.remove(customer);
     updateList();
     editCustomer(null);
 }
@@ -520,7 +550,7 @@ for `ConfirmDialog`, most basic form first:
 var confirm = new ConfirmDialog();
 confirm.setHeader("Delete customer?");
 confirm.addConfirmListener(event -> {
-    // real delete arrives in ch. 12
+    customers.remove(customer);
     updateList();
     editCustomer(null);
 });
@@ -587,21 +617,32 @@ CustomerListView(CustomerService customerService) {
 }
 ```
 
-Then the data source swaps — and this is the whole diff:
+Then the data source swaps. Delete the `customers` field and `getSampleCustomers()`; the service
+takes their place everywhere they were used:
 
 ```java
 // in updateList():
-List<Customer> customers = customerService.findAll();   // was: getSampleCustomers()
+List<Customer> customers = customerService.findAll();   // was: the in-memory field
 
 // in configureForm() / openCreateDialog():
-customerService.save(customer);                          // added before updateList()
+customerService.save(customer);                          // was: customers.add(...) / nothing
 
 // in confirmDelete():
-customerService.delete(customer);                        // added before updateList()
+customerService.delete(customer);                        // was: customers.remove(...)
 ```
 
-Delete `getSampleCustomers()`. The UI code barely changed — that's the architecture lesson.
-Refresh the page: the data is still there.
+The UI code barely changed — that's the architecture lesson. Refresh the page: the data is still
+there.
+
+**Beat 3 — pay off chapter 11's dangling thread.** Saved customers now have real ids, so the
+form can finally tell "existing" from "brand new" — and the dialog's nonsensical Delete button
+disappears:
+
+```java
+// CustomerForm.setCustomer():
+// Delete only makes sense for a customer that has already been saved.
+delete.setVisible(customer != null && customer.getId() != null);
+```
 
 ---
 
@@ -637,6 +678,8 @@ public final class MainLayout extends AppLayout {
 - `@Layout` tells Vaadin: wrap every view in this.
 - `AppLayout` is a component with drawer/navbar slots; the frame is just another component tree,
   composed with the same layouts as chapter 5.
+- `setPrimarySection(Section.DRAWER)` gets one spoken sentence (why the drawer owns the full
+  height).
 
 **Beat 2 — the navigation.** A `SideNav` whose items point at view *classes* — no URL strings:
 
@@ -684,7 +727,7 @@ toolbar.setFlexGrow(1, title);
 
 ```java
 // CustomerForm — Java sizing API:
-getContent().setMaxWidth("300px");
+setMaxWidth("300px");
 ```
 
 **Beat 2 — theming.** Toggle the whole app between Aura and Lumo by swapping one line in
@@ -692,12 +735,14 @@ getContent().setMaxWidth("300px");
 
 ```java
 @StyleSheet(Aura.STYLESHEET)   // ⇄ swap with Lumo.STYLESHEET, then back
+                               // (import com.vaadin.flow.theme.lumo.Lumo)
 ```
 
 Then Aura's light and dark color schemes, flipped the same way:
 
 ```java
 @ColorScheme(ColorScheme.Value.DARK)   // on the Application class
+                                       // (import com.vaadin.flow.component.page.ColorScheme)
 ```
 
 Mention: `Page::setColorScheme()` does the same at runtime — you could let your users decide.
