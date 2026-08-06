@@ -16,21 +16,28 @@ public class CustomerListView extends VerticalLayout {
 
     private final Grid<Customer> grid = new Grid<>();
 
+    private final List<Customer> customers = getSampleCustomers();
+
     public CustomerListView() {
         setSizeFull();
 
         grid.addColumn(Customer::getFirstName)
-                        .setHeader("First name");
+                .setSortable(true)
+                .setHeader("First name");
         grid.addColumn(Customer::getLastName)
-                        .setHeader("Last name");
+                .setSortable(true)
+                .setHeader("Last name");
         grid.addColumn(Customer::getEmail)
-                        .setHeader("Email");
+                .setSortable(true)
+                .setHeader("Email");
         grid.addColumn(Customer::getStatus)
-                        .setHeader("Status");
+                .setSortable(true)
+                .setHeader("Status");
         grid.addColumn(Customer::getCustomerSince)
-                        .setHeader("Customer since");
+                .setSortable(true)
+                .setHeader("Customer since");
         grid.setSizeFull();
-        grid.setItems(getSampleCustomers());
+        grid.setItems(customers);
         add(grid);
     }
 
