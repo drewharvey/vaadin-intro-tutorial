@@ -1,6 +1,8 @@
 package com.example;
 
+import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.theme.aura.Aura;
+import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -19,6 +21,7 @@ import com.vaadin.flow.component.page.Push;
 @SpringBootApplication
 @StyleSheet(Aura.STYLESHEET)
 @StyleSheet("styles.css") // Your custom styles
+@ColorScheme(ColorScheme.Value.LIGHT_DARK)
 @Push
 public class Application implements AppShellConfigurator {
 

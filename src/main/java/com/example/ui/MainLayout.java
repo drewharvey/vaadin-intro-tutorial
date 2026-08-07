@@ -15,7 +15,10 @@ public class MainLayout extends AppLayout {
         setPrimarySection(Section.DRAWER);
 
         var logo = VaadinIcon.VAADIN_H.create();
+
         var appName = new Span("Polaris CRM");
+        appName.addClassNames("app-name");
+
         var header = new HorizontalLayout(logo, appName);
         header.setPadding(true);
 
