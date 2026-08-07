@@ -12,6 +12,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.signals.Signal;
@@ -73,16 +78,34 @@ public class CustomerListView extends VerticalLayout {
                 .setHeader("Customer since");
         grid.setSizeFull();
         grid.asSingleSelect().bindValue(editedCustomer, editedCustomer::set);
-        grid.setItems(customers);
     }
 
     private FormLayout createForm() {
+        var binder = new Binder<Customer>();
+
         var firstName = new TextField("First name");
+        binder.forField(firstName)
+                .asRequired("First name is required")
+                .bind(Customer::getFirstName, Customer::setFirstName);
+
         var lastName = new TextField("Last name");
+        binder.forField(lastName)
+                .asRequired("Last name is required")
+                .bind(Customer::getLastName, Customer::setLastName);
+
         var email = new EmailField("Email");
+        binder.forField(email)
+                .asRequired("Email is required")
+                .bind(Customer::getEmail, Customer::setEmail);
+
         var status = new ComboBox<Status>("Status");
         status.setItems(Status.values());
+        binder.forField(status)
+                .asRequired("Status is required")
+                .bind(Customer::getStatus, Customer::setStatus);
+
         var customerSince = new DatePicker("Customer since");
+        binder.bind(customerSince, Customer::getCustomerSince, Customer::setCustomerSince);
 
         var form = new FormLayout(
                 firstName,
@@ -93,6 +116,7 @@ public class CustomerListView extends VerticalLayout {
         );
         form.setWidth("300px");
         form.bindVisible(editedCustomer.map(customer -> customer != null));
+        Signal.effect(form, () -> binder.setBean(editedCustomer.get()));
         return form;
     }
 
