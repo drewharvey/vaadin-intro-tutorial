@@ -1,6 +1,7 @@
 package com.example.ui;
 
 import com.example.backend.Customer;
+import com.example.backend.CustomerService;
 import com.example.backend.Status;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -29,6 +30,8 @@ import java.util.stream.Collectors;
 @Route("customers")
 public class CustomerListView extends VerticalLayout {
 
+    private final CustomerService customerService;
+
     private final Grid<Customer> grid = new Grid<>();
 
     private final ValueSignal<String> searchValue = new ValueSignal<>("");
@@ -36,9 +39,9 @@ public class CustomerListView extends VerticalLayout {
 
     private final Binder<Customer> binder = new Binder<>();
 
-    private final List<Customer> customers = getSampleCustomers();
+    public CustomerListView(CustomerService customerService) {
+        this.customerService = customerService;
 
-    public CustomerListView() {
         setSizeFull();
 
         var toolbar = createToolbar();
@@ -114,7 +117,8 @@ public class CustomerListView extends VerticalLayout {
         var customerSince = new DatePicker("Customer since");
         binder.bind(customerSince, Customer::getCustomerSince, Customer::setCustomerSince);
 
-        var saveBtn = new Button("Save");
+        var saveBtn = new Button();
+        saveBtn.bindText(editedCustomer.map(customer -> isNew(customer) ? "Create" : "Save"));
         saveBtn.addClickListener(e -> {
             save();
         });
@@ -124,7 +128,7 @@ public class CustomerListView extends VerticalLayout {
 
         var deleteBtn = new Button("Delete");
         deleteBtn.addClickListener(e -> confirmDelete());
-        deleteBtn.bindEnabled(editedCustomer.map(customer -> customer != null));
+        deleteBtn.bindEnabled(editedCustomer.map(customer -> !isNew(customer)));
 
         var buttons = new HorizontalLayout(saveBtn, discardBtn, deleteBtn);
 
@@ -142,6 +146,10 @@ public class CustomerListView extends VerticalLayout {
         return form;
     }
 
+    private boolean isNew(Customer customer) {
+        return customer != null && customer.getId() == null;
+    }
+
     private void addCustomer() {
         editedCustomer.set(new Customer());
     }
@@ -156,7 +164,7 @@ public class CustomerListView extends VerticalLayout {
         dialog.setCancelable(true);
         dialog.setConfirmText("Delete");
         dialog.addConfirmListener(e -> {
-            customers.remove(customer);
+            customerService.delete(customer);
             updateCustomerList();
         });
         dialog.open();
@@ -166,10 +174,7 @@ public class CustomerListView extends VerticalLayout {
         try {
             var customer = editedCustomer.peek();
             binder.writeBean(customer);
-            // add customer if new
-            if (!customers.contains(customer)) {
-                customers.add(customer);
-            }
+            customerService.save(customer);
             updateCustomerList();
         } catch (ValidationException ex) {
             throw new RuntimeException(ex);
@@ -181,11 +186,11 @@ public class CustomerListView extends VerticalLayout {
     }
 
     private void updateCustomerList(String query) {
-        var filtered = customers;
+        var filtered = customerService.findAll();
 
         if (!query.isEmpty()) {
             var lower = query.toLowerCase();
-            filtered = customers.stream()
+            filtered = filtered.stream()
                     .filter(c -> c.getFirstName().toLowerCase().contains(lower)
                             || c.getLastName().toLowerCase().contains(lower)
                             || c.getEmail().toLowerCase().contains(lower)
