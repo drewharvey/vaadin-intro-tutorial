@@ -4,6 +4,7 @@ import com.example.backend.Customer;
 import com.example.backend.CustomerService;
 import com.example.backend.Status;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -64,6 +65,7 @@ public class CustomerListView extends VerticalLayout {
         Signal.effect(search, () -> updateCustomerList(searchValue.get()));
 
         var addBtn = new Button(VaadinIcon.PLUS.create());
+        addBtn.addThemeVariants(ButtonVariant.PRIMARY);
         addBtn.addClickListener(e -> addCustomer());
 
         var layout = new HorizontalLayout(title, search, addBtn);
@@ -118,6 +120,7 @@ public class CustomerListView extends VerticalLayout {
         binder.bind(customerSince, Customer::getCustomerSince, Customer::setCustomerSince);
 
         var saveBtn = new Button();
+        saveBtn.addThemeVariants(ButtonVariant.PRIMARY);
         saveBtn.bindText(editedCustomer.map(customer -> isNew(customer) ? "Create" : "Save"));
         saveBtn.addClickListener(e -> {
             save();
@@ -127,6 +130,7 @@ public class CustomerListView extends VerticalLayout {
         discardBtn.addClickListener(e -> binder.readBean(editedCustomer.peek()));
 
         var deleteBtn = new Button("Delete");
+        deleteBtn.addThemeVariants(ButtonVariant.ERROR, ButtonVariant.TERTIARY);
         deleteBtn.addClickListener(e -> confirmDelete());
         deleteBtn.bindEnabled(editedCustomer.map(customer -> !isNew(customer)));
 
@@ -141,6 +145,7 @@ public class CustomerListView extends VerticalLayout {
                 buttons
         );
         form.setWidth("300px");
+        form.getStyle().setPaddingTop("30px");
         form.bindVisible(editedCustomer.map(customer -> customer != null));
         Signal.effect(form, () -> binder.readBean(editedCustomer.get()));
         return form;
@@ -163,6 +168,7 @@ public class CustomerListView extends VerticalLayout {
                 .formatted(customer.getFirstName(), customer.getLastName()));
         dialog.setCancelable(true);
         dialog.setConfirmText("Delete");
+        dialog.setConfirmButtonTheme("primary error");
         dialog.addConfirmListener(e -> {
             customerService.delete(customer);
             updateCustomerList();
