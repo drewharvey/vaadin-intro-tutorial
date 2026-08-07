@@ -4,6 +4,7 @@ import com.example.backend.Customer;
 import com.example.backend.Status;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -121,7 +122,11 @@ public class CustomerListView extends VerticalLayout {
         var discardBtn = new Button("Discard");
         discardBtn.addClickListener(e -> binder.readBean(editedCustomer.peek()));
 
-        var buttons = new HorizontalLayout(saveBtn, discardBtn);
+        var deleteBtn = new Button("Delete");
+        deleteBtn.addClickListener(e -> confirmDelete());
+        deleteBtn.bindEnabled(editedCustomer.map(customer -> customer != null));
+
+        var buttons = new HorizontalLayout(saveBtn, discardBtn, deleteBtn);
 
         var form = new FormLayout(
                 firstName,
@@ -139,6 +144,22 @@ public class CustomerListView extends VerticalLayout {
 
     private void addCustomer() {
         editedCustomer.set(new Customer());
+    }
+
+    private void confirmDelete() {
+        var customer = editedCustomer.peek();
+
+        var dialog = new ConfirmDialog();
+        dialog.setHeader("Confirm delete customer");
+        dialog.setText("Are you sure you want to delete this %s %s?"
+                .formatted(customer.getFirstName(), customer.getLastName()));
+        dialog.setCancelable(true);
+        dialog.setConfirmText("Delete");
+        dialog.addConfirmListener(e -> {
+            customers.remove(customer);
+            updateCustomerList();
+        });
+        dialog.open();
     }
 
     private void save() {
