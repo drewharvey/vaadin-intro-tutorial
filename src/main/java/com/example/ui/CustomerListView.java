@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
@@ -35,6 +36,8 @@ public class CustomerListView extends VerticalLayout {
 
     private final ValueSignal<String> searchValue = new ValueSignal<>("");
     private final ValueSignal<Customer> editedCustomer = new ValueSignal<>(null);
+
+    private final Binder<Customer> binder = new Binder<>();
 
     private final List<Customer> customers = getSampleCustomers();
 
@@ -81,8 +84,6 @@ public class CustomerListView extends VerticalLayout {
     }
 
     private FormLayout createForm() {
-        var binder = new Binder<Customer>();
-
         var firstName = new TextField("First name");
         binder.forField(firstName)
                 .asRequired("First name is required")
@@ -107,17 +108,41 @@ public class CustomerListView extends VerticalLayout {
         var customerSince = new DatePicker("Customer since");
         binder.bind(customerSince, Customer::getCustomerSince, Customer::setCustomerSince);
 
+        var saveBtn = new Button("Save");
+        saveBtn.addClickListener(e -> {
+            save();
+        });
+
+        var discardBtn = new Button("Discard");
+        discardBtn.addClickListener(e -> binder.readBean(editedCustomer.peek()));
+
+        var buttons = new HorizontalLayout(saveBtn, discardBtn);
+
         var form = new FormLayout(
                 firstName,
                 lastName,
                 email,
                 status,
-                customerSince
+                customerSince,
+                buttons
         );
         form.setWidth("300px");
         form.bindVisible(editedCustomer.map(customer -> customer != null));
-        Signal.effect(form, () -> binder.setBean(editedCustomer.get()));
+        Signal.effect(form, () -> binder.readBean(editedCustomer.get()));
         return form;
+    }
+
+    private void save() {
+        try {
+            binder.writeBean(editedCustomer.peek());
+            updateCustomerList();
+        } catch (ValidationException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void updateCustomerList() {
+        updateCustomerList(searchValue.peek());
     }
 
     private void updateCustomerList(String query) {
