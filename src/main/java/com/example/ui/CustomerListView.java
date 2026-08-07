@@ -30,13 +30,21 @@ public class CustomerListView extends VerticalLayout {
     public CustomerListView() {
         setSizeFull();
 
+        var search = createSearch();
+        configureGrid();
+        add(search, grid);
+    }
+
+    private TextField createSearch() {
         var search = new TextField();
         search.setPlaceholder("Search...");
         search.setValueChangeMode(ValueChangeMode.LAZY);
         search.bindValue(searchValue, searchValue::set);
         Signal.effect(search, () -> updateCustomerList(searchValue.get()));
-        add(search);
+        return search;
+    }
 
+    private void configureGrid() {
         grid.addColumn(Customer::getFirstName)
                 .setSortable(true)
                 .setHeader("First name");
@@ -54,7 +62,6 @@ public class CustomerListView extends VerticalLayout {
                 .setHeader("Customer since");
         grid.setSizeFull();
         grid.setItems(customers);
-        add(grid);
     }
 
     private void updateCustomerList(String query) {
