@@ -7,23 +7,19 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.data.binder.Validator;
-import com.vaadin.flow.data.binder.ValueContext;
-import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.signals.Signal;
 import com.vaadin.flow.signals.local.ValueSignal;
 
-import java.sql.Array;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,23 +40,32 @@ public class CustomerListView extends VerticalLayout {
     public CustomerListView() {
         setSizeFull();
 
-        var search = createSearch();
+        var toolbar = createToolbar();
         configureGrid();
         var form = createForm();
 
         var content = new HorizontalLayout(grid, form);
         content.setSizeFull();
 
-        add(search, content);
+        add(toolbar, content);
     }
 
-    private TextField createSearch() {
+    private HorizontalLayout createToolbar() {
+        var title = new H3("Customers");
+
         var search = new TextField();
         search.setPlaceholder("Search...");
         search.setValueChangeMode(ValueChangeMode.LAZY);
         search.bindValue(searchValue, searchValue::set);
         Signal.effect(search, () -> updateCustomerList(searchValue.get()));
-        return search;
+
+        var addBtn = new Button(VaadinIcon.PLUS.create());
+        addBtn.addClickListener(e -> addCustomer());
+
+        var layout = new HorizontalLayout(title, search, addBtn);
+        layout.setWidthFull();
+        layout.setFlexGrow(1, title);
+        return layout;
     }
 
     private void configureGrid() {
@@ -132,9 +137,18 @@ public class CustomerListView extends VerticalLayout {
         return form;
     }
 
+    private void addCustomer() {
+        editedCustomer.set(new Customer());
+    }
+
     private void save() {
         try {
-            binder.writeBean(editedCustomer.peek());
+            var customer = editedCustomer.peek();
+            binder.writeBean(customer);
+            // add customer if new
+            if (!customers.contains(customer)) {
+                customers.add(customer);
+            }
             updateCustomerList();
         } catch (ValidationException ex) {
             throw new RuntimeException(ex);
