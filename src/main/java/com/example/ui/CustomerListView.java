@@ -3,9 +3,14 @@ package com.example.ui;
 import com.example.backend.Customer;
 import com.example.backend.Status;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
@@ -24,6 +29,7 @@ public class CustomerListView extends VerticalLayout {
     private final Grid<Customer> grid = new Grid<>();
 
     private final ValueSignal<String> searchValue = new ValueSignal<>("");
+    private final ValueSignal<Customer> editedCustomer = new ValueSignal<>(null);
 
     private final List<Customer> customers = getSampleCustomers();
 
@@ -32,7 +38,12 @@ public class CustomerListView extends VerticalLayout {
 
         var search = createSearch();
         configureGrid();
-        add(search, grid);
+        var form = createForm();
+
+        var content = new HorizontalLayout(grid, form);
+        content.setSizeFull();
+
+        add(search, content);
     }
 
     private TextField createSearch() {
@@ -61,7 +72,28 @@ public class CustomerListView extends VerticalLayout {
                 .setSortable(true)
                 .setHeader("Customer since");
         grid.setSizeFull();
+        grid.asSingleSelect().bindValue(editedCustomer, editedCustomer::set);
         grid.setItems(customers);
+    }
+
+    private FormLayout createForm() {
+        var firstName = new TextField("First name");
+        var lastName = new TextField("Last name");
+        var email = new EmailField("Email");
+        var status = new ComboBox<Status>("Status");
+        status.setItems(Status.values());
+        var customerSince = new DatePicker("Customer since");
+
+        var form = new FormLayout(
+                firstName,
+                lastName,
+                email,
+                status,
+                customerSince
+        );
+        form.setWidth("300px");
+        form.bindVisible(editedCustomer.map(customer -> customer != null));
+        return form;
     }
 
     private void updateCustomerList(String query) {
