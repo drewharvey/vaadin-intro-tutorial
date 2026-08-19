@@ -1,4 +1,32 @@
-/* Add your styles here */
+html {
+  --aura-accent-color-dark: #22D3EE;
+  --aura-accent-color-light: #7F22FE;
+  --aura-background-color-light: #FFFFFF;
+  --aura-base-font-size: 13;
+  --aura-base-size: 20;
+  --aura-content-color-scheme: dark;
+  --aura-contrast-level: 0.25;
+  --aura-notification-color-scheme: dark;
+  color-scheme: dark;
+}
+
+html {
+  --aura-font-weight-regular: 500;
+  --aura-font-weight-medium: 600;
+  --aura-font-weight-semibold: 700;
+  --vaadin-button-font-weight: 600;
+  --vaadin-input-field-value-font-weight: 500;
+  --vaadin-checkbox-font-weight: 600;
+  --vaadin-radio-button-font-weight: 600;
+  --vaadin-message-name-font-weight: 600;
+  --vaadin-grid-header-font-weight: 600;
+}
+
+vaadin-card,
+vaadin-dashboard-widget {
+  --aura-surface-level: 4;
+}
+
 .app-name {
     font-weight: bold;
 }

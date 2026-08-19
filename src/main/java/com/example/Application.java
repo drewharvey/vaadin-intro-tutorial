@@ -21,7 +21,7 @@ import com.vaadin.flow.component.page.Push;
 @SpringBootApplication
 @StyleSheet(Aura.STYLESHEET)
 @StyleSheet("styles.css") // Your custom styles
-@ColorScheme(ColorScheme.Value.LIGHT_DARK)
+@ColorScheme(ColorScheme.Value.DARK)
 @Push
 public class Application implements AppShellConfigurator {
 
