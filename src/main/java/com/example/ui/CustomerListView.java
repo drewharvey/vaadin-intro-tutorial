@@ -183,7 +183,7 @@ public class CustomerListView extends VerticalLayout {
             customerService.save(customer);
             updateCustomerList();
         } catch (ValidationException ex) {
-            throw new RuntimeException(ex);
+            // do nothing - the fields already show their error messages
         }
     }
 
