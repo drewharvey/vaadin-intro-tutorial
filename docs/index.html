@@ -106,7 +106,45 @@ body {
 .watch:hover { filter: brightness(1.08); }
 
 /* ---------- layout ---------- */
-.wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 96px; }
+.shell {
+  max-width: 1260px; margin: 0 auto; padding: 0 24px;
+  display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 40px;
+  align-items: start;
+}
+.wrap { max-width: 880px; min-width: 0; padding: 0 0 96px; }
+
+/* ---------- side navigation ---------- */
+.sidenav {
+  position: sticky; top: 84px;
+  max-height: calc(100vh - 108px);
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 46px 0 24px;
+  scrollbar-width: thin;
+}
+.sidenav-title {
+  font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 12px; padding-left: 13px;
+}
+.sidenav ol { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+.sidenav li { margin: 0; }
+.sidenav a {
+  display: flex; gap: 9px; align-items: baseline;
+  padding: 6px 10px 6px 13px; margin-left: -2px;
+  border-left: 2px solid transparent;
+  color: var(--muted); text-decoration: none;
+  font-size: 14px; font-weight: 600; line-height: 1.35;
+  transition: color .12s ease, border-color .12s ease;
+}
+.sidenav a:hover { color: var(--ink); }
+.sidenav a .sn {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--muted); opacity: .75; min-width: 15px;
+}
+.sidenav a.active {
+  color: var(--accent); border-left-color: var(--accent);
+  background: linear-gradient(90deg, var(--accent-soft), transparent);
+}
+.sidenav a.active .sn { color: var(--accent); opacity: 1; }
 
 /* ---------- hero ---------- */
 .hero { padding: 56px 0 8px; }
@@ -243,10 +281,20 @@ a { color: var(--accent); }
 }
 .linkrow a:hover { border-color: var(--accent); }
 
+@media (max-width: 1080px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sidenav { display: none; }
+  .wrap { margin: 0 auto; }
+}
 @media (max-width: 620px) {
   body { font-size: 16px; }
-  .wrap { padding: 0 18px 72px; }
+  .shell { padding: 0 18px; }
+  .wrap { padding: 0 0 72px; }
   .toc .t { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .sidenav a { transition: none; }
 }
 </style>
 </head>
@@ -258,9 +306,33 @@ a { color: var(--accent); }
   <a class="watch" href="https://youtu.be/lTrcM0iP7O4" target="_blank" rel="noopener">▶ Watch the video</a>
 </div>
 
+<div class="shell">
+
+<aside class="sidenav" aria-label="On this page">
+  <p class="sidenav-title">On this page</p>
+  <ol>
+    <li><a href="#top"><span class="sn">·</span><span>Overview</span></a></li>
+    <li><a href="#start"><span class="sn">·</span><span>Getting started</span></a></li>
+      <li><a href="#s01"><span class="sn">01</span><span>Your first view</span></a></li>
+      <li><a href="#s02"><span class="sn">02</span><span>Data in a Grid</span></a></li>
+      <li><a href="#s03"><span class="sn">03</span><span>Filtering with Signals</span></a></li>
+      <li><a href="#s04"><span class="sn">04</span><span>Details form</span></a></li>
+      <li><a href="#s05"><span class="sn">05</span><span>Binder and validation</span></a></li>
+      <li><a href="#s06"><span class="sn">06</span><span>Buffered save &amp; discard</span></a></li>
+      <li><a href="#s07"><span class="sn">07</span><span>Toolbar and adding</span></a></li>
+      <li><a href="#s08"><span class="sn">08</span><span>Delete confirm dialog</span></a></li>
+      <li><a href="#s09"><span class="sn">09</span><span>Real backend</span></a></li>
+      <li><a href="#s10"><span class="sn">10</span><span>App shell and navigation</span></a></li>
+      <li><a href="#s11"><span class="sn">11</span><span>Theme variants</span></a></li>
+      <li><a href="#s12"><span class="sn">12</span><span>Custom CSS and themes</span></a></li>
+      <li><a href="#s13"><span class="sn">13</span><span>Theme generator</span></a></li>
+    <li><a href="#done"><span class="sn">✔</span><span>You're done</span></a></li>
+  </ol>
+</aside>
+
 <div class="wrap">
 
-<div class="hero">
+<div class="hero" id="top">
   <span class="eyebrow">Vaadin Flow · Text edition</span>
   <h1>Build your first Vaadin app</h1>
   <p class="lede">A full-stack <strong>customer management app in pure Java</strong> — no HTML, no JavaScript, no REST layer. Sortable grid, live filtering with signals, a validated form, a real database, and a theme you design in the browser.</p>
@@ -277,7 +349,7 @@ a { color: var(--accent); }
   <figcaption>What you'll have at the end — Polaris CRM, built entirely in Java.</figcaption>
 </figure>
 
-<div class="card">
+<div class="card" id="start">
   <h3>Before you start</h3>
   <p>Clone the starter project and run it. Everything below builds on top of it.</p>
   <div class="codeblock">
@@ -1078,6 +1150,7 @@ vaadin-dashboard-widget {
 </footer>
 
 </div>
+</div>
 
 <script>
 (function () {
@@ -1093,9 +1166,15 @@ vaadin-dashboard-widget {
       return '%%' + (store.length - 1) + '%%';
     }
     // Comments and strings are captured first, so later passes cannot reach inside them.
-    html = html.replace(/\/\/[^\n]*/g, function (m) { return stash('tk-c', m); });
-    html = html.replace(/"[^"\n]*"/g, function (m) { return stash('tk-s', m); });
-    html = html.replace(/'[^'\n]*'/g, function (m) { return stash('tk-s', m); });
+    // One ordered pass, so whichever construct opens first wins: this keeps "//" inside a
+    // URL (https://...) from being mistaken for a line comment, and keeps quotes inside a
+    // comment from opening a string. CSS has no line comments, so it omits that branch.
+    var protect = lang === 'css'
+      ? /("[^"\n]*")|('[^'\n]*')|(\/\*[\s\S]*?\*\/)/g
+      : /("[^"\n]*")|('[^'\n]*')|(\/\*[\s\S]*?\*\/)|(\/\/[^\n]*)/g;
+    html = html.replace(protect, function (m) {
+      return stash(m.charAt(0) === '/' ? 'tk-c' : 'tk-s', m);
+    });
     if (lang === 'css') {
       html = html.replace(/--[\w-]+/g, function (m) { return stash('tk-n', m); });
       html = html.replace(/(^|\n)([.@a-zA-Z][\w\s,.\-]*?)(\s*\{)/g, function (m, a, b, c) {
@@ -1112,6 +1191,67 @@ vaadin-dashboard-widget {
     }
     block.innerHTML = html;
   });
+})();
+</script>
+
+
+<script>
+// Side-navigation scrollspy: highlights the section the reader is currently in.
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.sidenav a[href^="#"]'));
+  var items = [];
+  links.forEach(function (a) {
+    var el = document.getElementById(a.getAttribute('href').slice(1));
+    if (el) items.push({ link: a, el: el });
+  });
+  if (!items.length) return;
+
+  // Matches html{scroll-padding-top} plus a little slack, so a section counts as
+  // "current" once its heading has settled under the sticky top bar.
+  var OFFSET = 96;
+  var current = null;
+
+  function activate(link) {
+    if (link === current) return;
+    if (current) { current.classList.remove('active'); current.removeAttribute('aria-current'); }
+    link.classList.add('active');
+    link.setAttribute('aria-current', 'true');
+    current = link;
+    // Keep the highlighted row visible when the rail itself has to scroll.
+    var rail = link.closest('.sidenav');
+    if (rail && rail.scrollHeight > rail.clientHeight) {
+      var lr = link.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+      if (lr.top < rr.top + 8) rail.scrollTop -= (rr.top + 8 - lr.top);
+      else if (lr.bottom > rr.bottom - 8) rail.scrollTop += (lr.bottom - rr.bottom + 8);
+    }
+  }
+
+  function update() {
+    var idx = 0;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].el.getBoundingClientRect().top <= OFFSET) idx = i;
+      else break;
+    }
+    // The last section is often too short to reach the offset line, so pin it at the bottom.
+    var doc = document.documentElement;
+    if (window.innerHeight + window.scrollY >= doc.scrollHeight - 2) idx = items.length - 1;
+    activate(items[idx].link);
+  }
+
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { update(); ticking = false; });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  window.addEventListener('hashchange', onScroll);
+  links.forEach(function (a) {
+    a.addEventListener('click', function () { setTimeout(update, 60); });
+  });
+  update();
 })();
 </script>
 
