@@ -345,7 +345,7 @@ a { color: var(--accent); }
 </div>
 
 <figure>
-  <img src="img/shot-13.jpeg" alt="The finished Polaris CRM: a themed customer list with a details form">
+  <img src="img/shot-13.jpeg" alt="The finished Polaris CRM: a dark, themed customer list with a details form">
   <figcaption>What you'll have at the end — Polaris CRM, built entirely in Java.</figcaption>
 </figure>
 
@@ -1073,48 +1073,59 @@ appName.addClassNames("app-name");</code></pre>
     <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=3493" target="_blank" rel="noopener">▶ 58:13</a>
   </div>
   <h2>Branding with the theme generator</h2>
-  <p>Hand-writing a whole design system would take the rest of the day. Vaadin's <a href="https://vaadin.com/docs/latest/styling/themes/aura" target="_blank" rel="noopener">Aura theme editor</a> lets you pick colours, fonts, roundness and density in the browser, then hands you a block of CSS custom properties to paste in.</p>
+  <p>Hand-writing a whole design system would take the rest of the day. Vaadin's <a href="https://vaadin.com/docs/latest/styling/themes/aura" target="_blank" rel="noopener">Aura theme editor</a> lets you pick the accent colour, type scale, density and contrast in the browser, then hands you a block of CSS custom properties to paste in.</p>
 
   <div class="codeblock">
-    <div class="file">styles.css</div>
-    <pre><code class="lang-css">@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
-
-html {
-    --aura-accent-color-dark: #615FFF;
-    --aura-accent-color-light: #4F39F6;
-    --aura-background-color-dark: #0C0B2F;
-    --aura-background-color-light: #D0DAFF;
-    --aura-base-font-size: 15;
-    --aura-base-radius: 7;
-    --aura-content-color-scheme: light dark;
-    --aura-font-family: 'Manrope', var(--aura-font-family-system);
-    --aura-notification-color-scheme: light dark;
-    --aura-surface-level: 2;
-    color-scheme: light dark;
+    <div class="file">src/main/resources/META-INF/resources/styles.css</div>
+    <pre><code class="lang-css">html {
+  --aura-accent-color-dark: #22D3EE;
+  --aura-accent-color-light: #7F22FE;
+  --aura-background-color-light: #FFFFFF;
+  --aura-base-font-size: 13;
+  --aura-base-size: 20;
+  --aura-content-color-scheme: dark;
+  --aura-contrast-level: 0.25;
+  --aura-notification-color-scheme: dark;
+  color-scheme: dark;
 }
 
 html {
-    --aura-font-weight-regular: 500;
-    --aura-font-weight-medium: 600;
-    --aura-font-weight-semibold: 700;
-    --vaadin-button-font-weight: 600;
-    --vaadin-input-field-value-font-weight: 500;
-    --vaadin-checkbox-font-weight: 600;
-    --vaadin-radio-button-font-weight: 600;
-    --vaadin-message-name-font-weight: 600;
-    --vaadin-grid-header-font-weight: 600;
+  --aura-font-weight-regular: 500;
+  --aura-font-weight-medium: 600;
+  --aura-font-weight-semibold: 700;
+  --vaadin-button-font-weight: 600;
+  --vaadin-input-field-value-font-weight: 500;
+  --vaadin-checkbox-font-weight: 600;
+  --vaadin-radio-button-font-weight: 600;
+  --vaadin-message-name-font-weight: 600;
+  --vaadin-grid-header-font-weight: 600;
 }
 
 vaadin-card,
 vaadin-dashboard-widget {
-    --aura-surface-level: 4;
+  --aura-surface-level: 4;
 }</code></pre>
   </div>
 
-  <p>Not one component was touched. Every button, field, dialog and grid in the app picks up the new accent colour, typeface and corner radius, because they all read the same custom properties.</p>
+  <p>This theme commits to a dark interface, so the <code>@ColorScheme</code> from the last section stops following the operating system and settles on one answer:</p>
+
+  <div class="codeblock">
+    <div class="file">src/main/java/com/example/Application.java</div>
+    <pre><code class="lang-java">@ColorScheme(ColorScheme.Value.DARK)</code></pre>
+  </div>
+
+  <p>Not one component was touched. Every button, field, dialog and grid picks up the new accent, spacing and contrast, because they all read the same custom properties.</p>
+
+  <div class="concept">
+    <b>Two accents, one for each scheme.</b> <code>--aura-accent-color-light</code> and <code>--aura-accent-color-dark</code> are both set, and the theme picks whichever matches the active colour scheme. Because this app is pinned to dark, the cyan <code>#22D3EE</code> is the one you see; the purple is waiting if you ever switch it back.
+  </div>
+
+  <div class="note">
+    <b>Restart required</b> for the <code>Application.java</code> change. The stylesheet itself is picked up on reload.
+  </div>
 
   <figure>
-    <img src="img/shot-13.jpeg" alt="The finished app with the generated theme applied">
+    <img src="img/shot-13.jpeg" alt="The finished app in dark mode with a cyan accent">
     <figcaption>The finished Polaris CRM — same Java, a completely different feel.</figcaption>
   </figure>
 
