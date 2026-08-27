@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build Your First Vaadin App — Polaris CRM</title>
+<meta name="description" content="The text edition of the Vaadin Flow introduction tutorial. Build a full-stack CRM in pure Java — grid, signals, forms, validation, database and theming.">
+<link rel="icon" href="vaadin-symbol.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f8fc;
+  --surface: #ffffff;
+  --ink: #101828;
+  --muted: #5b6b80;
+  --line: #dde4ee;
+  --accent: #056ff0;
+  --accent-soft: rgba(5, 111, 240, 0.08);
+  --concept-bg: #fdf3e3;
+  --concept-ink: #8a5a12;
+  --concept-line: #ecd9b6;
+  --note-bg: #eef4ee;
+  --note-ink: #2f5e33;
+  --note-line: #cfdecf;
+  --code-bg: #0d1524;
+  --code-ink: #d9e2f1;
+  --code-line: #22304a;
+  --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
+  --radius: 12px;
+  --font: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1523;
+    --surface: #161e30;
+    --ink: #e6ecf6;
+    --muted: #93a1b8;
+    --line: #26304a;
+    --accent: #4d9aff;
+    --accent-soft: rgba(77,154,255,0.12);
+    --concept-bg: #2c2414;
+    --concept-ink: #e8c98a;
+    --concept-line: #4a3d1d;
+    --note-bg: #16281a;
+    --note-ink: #9fd3a6;
+    --note-line: #2b4530;
+    --code-bg: #0a1120;
+    --code-ink: #d9e2f1;
+    --code-line: #1e2b44;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1523;
+  --surface: #161e30;
+  --ink: #e6ecf6;
+  --muted: #93a1b8;
+  --line: #26304a;
+  --accent: #4d9aff;
+  --accent-soft: rgba(77,154,255,0.12);
+  --concept-bg: #2c2414;
+  --concept-ink: #e8c98a;
+  --concept-line: #4a3d1d;
+  --note-bg: #16281a;
+  --note-ink: #9fd3a6;
+  --note-line: #2b4530;
+  --code-bg: #0a1120;
+  --code-ink: #d9e2f1;
+  --code-line: #1e2b44;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 78px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.topbar .mark { display: flex; align-items: center; gap: 9px; font-weight: 800; letter-spacing: -.02em; }
+.topbar .mark img { width: 22px; height: 19px; }
+.topbar .spacer { flex: 1; }
+.watch {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 14px; border-radius: 99px;
+  background: var(--accent); color: #fff; text-decoration: none;
+  font-weight: 700; font-size: 14px; white-space: nowrap;
+}
+.watch:hover { filter: brightness(1.08); }
+
+/* ---------- layout ---------- */
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 24px 96px; }
+
+/* ---------- hero ---------- */
+.hero { padding: 56px 0 8px; }
+.eyebrow {
+  display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+}
+h1 { font-size: clamp(34px, 5.4vw, 50px); line-height: 1.1; letter-spacing: -.032em; margin: 0 0 18px; font-weight: 800; }
+.lede { font-size: 20px; color: var(--muted); margin: 0 0 28px; }
+.lede strong { color: var(--ink); font-weight: 700; }
+
+.factbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+.fact {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 13px; border-radius: 99px; font-size: 13.5px; font-weight: 600;
+  background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+}
+
+/* ---------- boxes ---------- */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 22px 24px; margin: 26px 0;
+}
+.card h3 { margin: 0 0 10px; font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+.note, .concept {
+  border-radius: var(--radius); padding: 16px 18px; margin: 22px 0;
+  font-size: 15.5px; line-height: 1.6;
+}
+.note { background: var(--note-bg); border: 1px solid var(--note-line); color: var(--note-ink); }
+.concept { background: var(--concept-bg); border: 1px solid var(--concept-line); color: var(--concept-ink); }
+.note b, .concept b { font-weight: 800; }
+.note code, .concept code { background: rgba(127,127,127,.16); }
+
+/* ---------- toc ---------- */
+.toc { margin: 8px 0 44px; }
+.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+.toc li { counter-increment: toc; border-bottom: 1px solid var(--line); }
+.toc li:first-child { border-top: 1px solid var(--line); }
+.toc a {
+  display: flex; align-items: baseline; gap: 14px;
+  padding: 11px 4px; text-decoration: none; color: var(--ink); font-weight: 600;
+}
+.toc a:hover { color: var(--accent); }
+.toc a::before {
+  content: counter(toc, decimal-leading-zero);
+  font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+  font-weight: 600; min-width: 22px;
+}
+.toc .t { font-size: 13px; color: var(--muted); font-family: var(--mono); margin-left: auto; }
+
+/* ---------- sections ---------- */
+section { padding-top: 46px; }
+.sec-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.num {
+  font-family: var(--mono); font-size: 12.5px; font-weight: 700;
+  color: var(--accent); background: var(--accent-soft);
+  padding: 3px 9px; border-radius: 6px;
+}
+h2 { font-size: clamp(25px, 3.4vw, 31px); letter-spacing: -.024em; margin: 4px 0 14px; font-weight: 800; line-height: 1.2; }
+h3 { font-size: 18px; margin: 30px 0 10px; font-weight: 800; letter-spacing: -.01em; }
+p { margin: 0 0 16px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 7px; }
+
+.stamp {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 12.5px; font-weight: 600;
+  color: var(--muted); text-decoration: none;
+  border: 1px solid var(--line); background: var(--surface);
+  padding: 3px 9px; border-radius: 6px;
+}
+.stamp:hover { color: var(--accent); border-color: var(--accent); }
+
+.checkout {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 18px 0 22px; padding: 11px 14px;
+  border: 1px dashed var(--line); border-radius: 9px;
+  font-size: 14px; color: var(--muted); background: var(--surface);
+}
+.checkout code { font-size: 13px; }
+
+/* ---------- code ---------- */
+.codeblock {
+  background: var(--code-bg); border: 1px solid var(--code-line);
+  border-radius: var(--radius); margin: 20px 0; overflow: hidden;
+}
+.codeblock .file {
+  font-family: var(--mono); font-size: 12.5px; font-weight: 600;
+  color: #8fa6c8; padding: 9px 16px; border-bottom: 1px solid var(--code-line);
+  background: rgba(255,255,255,.03);
+}
+.codeblock pre {
+  margin: 0; padding: 16px; overflow-x: auto;
+  font-family: var(--mono); font-size: 13.5px; line-height: 1.62; color: var(--code-ink);
+}
+code {
+  font-family: var(--mono); font-size: .89em;
+  background: var(--accent-soft); color: inherit;
+  padding: 1.5px 5px; border-radius: 5px;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+.tk-k { color: #ff9ecd; }
+.tk-s { color: #b6e59e; }
+.tk-c { color: #6f819c; font-style: italic; }
+.tk-a { color: #ffcf7a; }
+.tk-t { color: #8fd6ff; }
+.tk-n { color: #d2b3ff; }
+
+/* ---------- figures ---------- */
+figure { margin: 24px 0; }
+figure img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); background: var(--surface);
+}
+figcaption { margin-top: 9px; font-size: 14px; color: var(--muted); text-align: center; }
+
+/* ---------- footer ---------- */
+footer {
+  margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 15px;
+}
+footer a { color: var(--accent); }
+a { color: var(--accent); }
+
+.linkrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.linkrow a {
+  padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); text-decoration: none; font-weight: 600; font-size: 14.5px;
+}
+.linkrow a:hover { border-color: var(--accent); }
+
+@media (max-width: 620px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 18px 72px; }
+  .toc .t { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="mark"><img src="vaadin-symbol.svg" alt=""> Polaris CRM</span>
+  <span class="spacer"></span>
+  <a class="watch" href="https://youtu.be/lTrcM0iP7O4" target="_blank" rel="noopener">▶ Watch the video</a>
+</div>
+
+<div class="wrap">
+
+<div class="hero">
+  <span class="eyebrow">Vaadin Flow · Text edition</span>
+  <h1>Build your first Vaadin app</h1>
+  <p class="lede">A full-stack <strong>customer management app in pure Java</strong> — no HTML, no JavaScript, no REST layer. Sortable grid, live filtering with signals, a validated form, a real database, and a theme you design in the browser.</p>
+  <div class="factbar">
+    <span class="fact">☕ Java 25</span>
+    <span class="fact">🌱 Spring Boot</span>
+    <span class="fact">🔷 Vaadin 25.2</span>
+    <span class="fact">⏱ ~1 hour</span>
+  </div>
+</div>
+
+<figure>
+  <img src="img/shot-13.jpeg" alt="The finished Polaris CRM: a themed customer list with a details form">
+  <figcaption>What you'll have at the end — Polaris CRM, built entirely in Java.</figcaption>
+</figure>
+
+<div class="card">
+  <h3>Before you start</h3>
+  <p>Clone the starter project and run it. Everything below builds on top of it.</p>
+  <div class="codeblock">
+    <pre><code class="lang-bash">git clone https://github.com/drewharvey/vaadin-intro-tutorial.git
+cd vaadin-intro-tutorial
+./mvnw spring-boot:run        # Windows: mvnw.cmd spring-boot:run</code></pre>
+  </div>
+  <p>Open <a href="http://localhost:8080">http://localhost:8080</a>. The first start takes about 30 seconds while Maven downloads dependencies. You'll get a blank page — that's correct. The UI is what you're about to build.</p>
+  <p style="margin-bottom:0">The starter already contains the data layer (<code>Customer</code>, <code>CustomerService</code>, <code>CustomerRepository</code>, and seed data). You ignore it until <a href="#s09">section 9</a>.</p>
+</div>
+
+<div class="note">
+  <b>Install the Vaadin plugin for your IDE.</b> Running with <code>spring-boot:run</code> works, but Java changes need a restart. The plugin's <em>Debug using Hotswap Agent</em> gives you live reload — edit Java, see it in the browser. It's also required for the AI edits in Vaadin Copilot.
+</div>
+
+<h3>How this page maps to the video</h3>
+<p>Each section below is one chapter of the video, and each has a matching <b>git tag</b> on the <code>tutorial-complete</code> branch. If you get lost, check out that tag and compare:</p>
+<div class="codeblock">
+  <pre><code class="lang-bash">git fetch origin tutorial-complete
+git checkout 05-binder-validation     # the code as it stood at that point
+git checkout main                     # back to your own work</code></pre>
+</div>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#s01">Your first view, components and layouts <span class="t">02:28</span></a></li>
+    <li><a href="#s02">Displaying data in a Grid <span class="t">05:57</span></a></li>
+    <li><a href="#s03">Filtering with Signals <span class="t">10:34</span></a></li>
+    <li><a href="#s04">A details form bound to grid selection <span class="t">18:06</span></a></li>
+    <li><a href="#s05">Editing with Binder and validation <span class="t">24:26</span></a></li>
+    <li><a href="#s06">Save and discard with buffered mode <span class="t">30:03</span></a></li>
+    <li><a href="#s07">A toolbar and adding customers <span class="t">35:20</span></a></li>
+    <li><a href="#s08">Deleting with a confirm dialog <span class="t">39:32</span></a></li>
+    <li><a href="#s09">Connecting the real backend <span class="t">43:52</span></a></li>
+    <li><a href="#s10">App shell and navigation <span class="t">48:18</span></a></li>
+    <li><a href="#s11">Styling with theme variants <span class="t">51:42</span></a></li>
+    <li><a href="#s12">Custom CSS and themes <span class="t">53:57</span></a></li>
+    <li><a href="#s13">Branding with the theme generator <span class="t">58:13</span></a></li>
+  </ol>
+</nav>
+
+<!-- ============ 01 ============ -->
+<section id="s01">
+  <div class="sec-head">
+    <span class="num">01</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=148" target="_blank" rel="noopener">▶ 02:28</a>
+  </div>
+  <h2>Your first view, components and layouts</h2>
+  <p>A <b>view</b> is a Java class the user can navigate to. <code>HomeView</code> is already in the starter: <code>@Route("")</code> maps it to the root URL, and extending <code>VerticalLayout</code> means anything you add stacks top to bottom.</p>
+  <p>Build a small form to get a feel for components. Every component is a Java object you construct and <code>add()</code>.</p>
+
+  <div class="codeblock">
+    <div class="file">src/main/java/com/example/ui/HomeView.java</div>
+    <pre><code class="lang-java">HomeView() {
+    var name = new TextField("Name");
+    add(name);
+
+    var dob = new DatePicker("Date of birth");
+    add(dob);
+
+    var save = new Button("Save");
+    save.addClickListener(e -> {
+        Notification.show("Details saved!");
+    });
+
+    var discard = new Button("Discard");
+    discard.addClickListener(e -> {
+        Notification.show("Details discarded");
+    });
+
+    var buttonsLayout = new HorizontalLayout();
+    buttonsLayout.add(save, discard);
+    add(buttonsLayout);
+}</code></pre>
+  </div>
+
+  <p>The two buttons go inside a <code>HorizontalLayout</code> so they sit side by side, and that layout is added to the view — layouts nest inside layouts.</p>
+
+  <div class="concept">
+    <b>Listeners run on the server.</b> <code>addClickListener</code> takes a Java lambda. When the user clicks, the browser tells the server, your Java runs, and Vaadin sends back only what changed. There's no JavaScript and no endpoint to write.
+  </div>
+
+  <figure>
+    <img src="img/shot-01.jpeg" alt="Two fields and two buttons rendered in the browser">
+    <figcaption>Two fields stacked, two buttons side by side.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 01-your-first-view</code></div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s02">
+  <div class="sec-head">
+    <span class="num">02</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=357" target="_blank" rel="noopener">▶ 05:57</a>
+  </div>
+  <h2>Displaying data in a Grid</h2>
+  <p>Now the real app. Create a new view, <code>CustomerListView</code>, on its own route. <code>Grid</code> is Vaadin's data table — you give it typed columns and a list of objects.</p>
+
+  <div class="codeblock">
+    <div class="file">src/main/java/com/example/ui/CustomerListView.java</div>
+    <pre><code class="lang-java">@Route("customers")
+public class CustomerListView extends VerticalLayout {
+
+    private final Grid&lt;Customer&gt; grid = new Grid&lt;&gt;();
+
+    private final List&lt;Customer&gt; customers = getSampleCustomers();
+
+    public CustomerListView() {
+        setSizeFull();
+
+        grid.addColumn(Customer::getFirstName)
+                .setSortable(true)
+                .setHeader("First name");
+        grid.addColumn(Customer::getLastName)
+                .setSortable(true)
+                .setHeader("Last name");
+        grid.addColumn(Customer::getEmail)
+                .setSortable(true)
+                .setHeader("Email");
+        grid.addColumn(Customer::getStatus)
+                .setSortable(true)
+                .setHeader("Status");
+        grid.addColumn(Customer::getCustomerSince)
+                .setSortable(true)
+                .setHeader("Customer since");
+        grid.setSizeFull();
+        grid.setItems(customers);
+        add(grid);
+    }
+
+    private List&lt;Customer&gt; getSampleCustomers() {
+        return new ArrayList&lt;&gt;(List.of(
+                new Customer("Alice", "Nguyen", "alice.nguyen@meridian-labs.com",
+                        Status.CUSTOMER, LocalDate.of(2023, 1, 15)),
+                new Customer("Bob", "Martinez", "bob.martinez@bluefern.io",
+                        Status.CUSTOMER, LocalDate.of(2022, 11, 3)),
+                new Customer("Carol", "Schmidt", "carol.schmidt@meridian-labs.com",
+                        Status.PROSPECT, null)
+        ));
+    }
+}</code></pre>
+  </div>
+
+  <p>Each <code>addColumn</code> takes a method reference — a getter on <code>Customer</code>. That's what makes the grid type-safe: rename <code>getEmail</code> and this stops compiling, rather than silently rendering blanks.</p>
+  <p><code>setSortable(true)</code> gives every column click-to-sort headers, handled in memory for you.</p>
+
+  <div class="note">
+    <b>Why a hardcoded list?</b> The three sample customers keep this section focused on the UI. It's a plain mutable <code>ArrayList</code>, which matters shortly — filtering and adding both operate on it until the database arrives in section 9.
+  </div>
+
+  <figure>
+    <img src="img/shot-02.jpeg" alt="A grid of three customers with sortable column headers">
+    <figcaption>Five typed columns, sortable headers, three sample rows.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 02-data-in-a-grid</code></div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s03">
+  <div class="sec-head">
+    <span class="num">03</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=634" target="_blank" rel="noopener">▶ 10:34</a>
+  </div>
+  <h2>Filtering with Signals</h2>
+  <p>A search box needs somewhere to keep "what is currently typed". That's UI state, and in Vaadin the reactive way to hold it is a <b>signal</b>.</p>
+  <p>Declare the signal as a field, bind the field to it, and register an <b>effect</b> that re-runs whenever the signal changes.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">private final ValueSignal&lt;String&gt; searchValue = new ValueSignal&lt;&gt;("");
+
+public CustomerListView() {
+    setSizeFull();
+
+    var search = createSearch();
+    configureGrid();
+    add(search, grid);
+}
+
+private TextField createSearch() {
+    var search = new TextField();
+    search.setPlaceholder("Search...");
+    search.setValueChangeMode(ValueChangeMode.LAZY);
+    search.bindValue(searchValue, searchValue::set);
+    Signal.effect(search, () -> updateCustomerList(searchValue.get()));
+    return search;
+}
+
+private void updateCustomerList(String query) {
+    var filtered = customers;
+
+    if (!query.isEmpty()) {
+        var lower = query.toLowerCase();
+        filtered = customers.stream()
+                .filter(c -> c.getFirstName().toLowerCase().contains(lower)
+                        || c.getLastName().toLowerCase().contains(lower)
+                        || c.getEmail().toLowerCase().contains(lower)
+                        || c.getStatus().name().toLowerCase().contains(lower))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    grid.setItems(filtered);
+}</code></pre>
+  </div>
+
+  <p>Nothing wires the text field to the grid directly. The field writes into <code>searchValue</code>; the effect reads it and refreshes the grid. Add another component that depends on the same signal and it updates too, with no extra plumbing.</p>
+
+  <div class="concept">
+    <b>The <code>get()</code> / <code>peek()</code> rule — the one thing to remember about signals.</b><br>
+    Inside a <code>Signal.effect</code>, use <code>get()</code>. That is what subscribes the effect to the signal.<br>
+    Everywhere else — click listeners, helper methods — use <code>peek()</code>. It reads the value without subscribing.<br>
+    Calling <code>get()</code> outside a reactive context throws <code>IllegalStateException</code>.
+  </div>
+
+  <div class="note">
+    <b><code>ValueChangeMode.LAZY</code></b> keeps the server from being hit on every keystroke — it waits for a short pause in typing. Without it, filtering fires per character.
+  </div>
+
+  <p>The last two housekeeping moves of this section: extract the grid setup into <code>configureGrid()</code>, and move the search field creation into <code>createSearch()</code>. The constructor becomes a summary of the view rather than a wall of setup.</p>
+
+  <figure>
+    <img src="img/shot-03.jpeg" alt="Typing mar into the search box narrows the grid to Bob Martinez">
+    <figcaption>Typing <code>mar</code> filters the grid live — the signal drives it.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 03-filtering-with-signals</code></div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s04">
+  <div class="sec-head">
+    <span class="num">04</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=1086" target="_blank" rel="noopener">▶ 18:06</a>
+  </div>
+  <h2>A details form bound to grid selection</h2>
+  <p>Selecting a row should reveal a details form. That's a second piece of state — <b>which customer is being edited</b> — so it gets a second signal.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">private final ValueSignal&lt;Customer&gt; editedCustomer = new ValueSignal&lt;&gt;(null);
+
+public CustomerListView() {
+    setSizeFull();
+
+    var search = createSearch();
+    configureGrid();
+    var form = createForm();
+
+    var content = new HorizontalLayout(grid, form);
+    content.setSizeFull();
+
+    add(search, content);
+}
+
+private void configureGrid() {
+    // ...columns as before...
+    grid.asSingleSelect().bindValue(editedCustomer, editedCustomer::set);
+}
+
+private FormLayout createForm() {
+    var firstName = new TextField("First name");
+    var lastName = new TextField("Last name");
+    var email = new EmailField("Email");
+    var status = new ComboBox&lt;Status&gt;("Status");
+    status.setItems(Status.values());
+    var customerSince = new DatePicker("Customer since");
+
+    var form = new FormLayout(
+            firstName,
+            lastName,
+            email,
+            status,
+            customerSince
+    );
+    form.setWidth("300px");
+    form.bindVisible(editedCustomer.map(customer -> customer != null));
+    return form;
+}</code></pre>
+  </div>
+
+  <p>Two bindings do the work. <code>grid.asSingleSelect().bindValue(...)</code> pushes the selected row into the signal. <code>form.bindVisible(...)</code> derives the form's visibility <em>from</em> that signal — no customer, no form.</p>
+
+  <div class="concept">
+    <b><code>map</code> creates a derived signal.</b> <code>editedCustomer.map(c -> c != null)</code> is a read-only signal of booleans that recomputes whenever <code>editedCustomer</code> changes. You bind components to derived values instead of writing show/hide logic by hand.
+  </div>
+
+  <div class="note">
+    <b>The fields are still empty at this point</b> — and that's expected. Selection controls whether the form is <em>visible</em>; nothing yet copies values into the inputs. That's the next section's job.
+  </div>
+
+  <figure>
+    <img src="img/shot-04.jpeg" alt="Selecting a row reveals an empty details form beside the grid">
+    <figcaption>The form appears on selection. Populating it comes next.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 04-details-form</code></div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s05">
+  <div class="sec-head">
+    <span class="num">05</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=1466" target="_blank" rel="noopener">▶ 24:26</a>
+  </div>
+  <h2>Editing with Binder and validation</h2>
+  <p>You could call <code>setValue</code> on five fields and read them back one by one. <code>Binder</code> does it declaratively instead: connect each field to a getter/setter pair and it handles both directions plus validation.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java — inside createForm()</div>
+    <pre><code class="lang-java">var binder = new Binder&lt;Customer&gt;();
+
+binder.forField(firstName)
+        .asRequired("First name is required")
+        .bind(Customer::getFirstName, Customer::setFirstName);
+
+binder.forField(lastName)
+        .asRequired("Last name is required")
+        .bind(Customer::getLastName, Customer::setLastName);
+
+binder.forField(email)
+        .asRequired("Email is required")
+        .bind(Customer::getEmail, Customer::setEmail);
+
+binder.forField(status)
+        .asRequired("Status is required")
+        .bind(Customer::getStatus, Customer::setStatus);
+
+binder.bind(customerSince, Customer::getCustomerSince, Customer::setCustomerSince);
+
+Signal.effect(form, () -> binder.setBean(editedCustomer.get()));</code></pre>
+  </div>
+
+  <p>The effect is the bridge: when <code>editedCustomer</code> changes, the binder gets the new bean and the fields fill in. Note it calls <code>get()</code>, because it's inside an effect.</p>
+  <p><code>asRequired</code> adds the asterisk, the message, and the check. <code>customerSince</code> is bound without it — the field is genuinely optional, and prospects have no date yet.</p>
+
+  <div class="concept">
+    <b>The effect belongs to the form, not the grid.</b> <code>Signal.effect(form, ...)</code> ties the effect's lifecycle to that component. When the form is detached, the effect is cleaned up with it — no leaks, no stale subscriptions.
+  </div>
+
+  <figure>
+    <img src="img/shot-05.jpeg" alt="The form populated from the selected row, with a validation error on First name">
+    <figcaption>Fields populate from the selection; clearing a required one shows its message.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 05-binder-validation</code></div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s06">
+  <div class="sec-head">
+    <span class="num">06</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=1803" target="_blank" rel="noopener">▶ 30:03</a>
+  </div>
+  <h2>Save and discard with buffered mode</h2>
+  <p><code>setBean</code> is <b>unbuffered</b>: every keystroke writes straight through to the object. Usually you want the opposite — edits held until the user commits them. That's <b>buffered</b> mode, and it's the difference between <code>setBean</code> and <code>readBean</code>.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">private final Binder&lt;Customer&gt; binder = new Binder&lt;&gt;();
+
+// in createForm()
+var saveBtn = new Button("Save");
+saveBtn.addClickListener(e -> {
+    save();
+});
+
+var discardBtn = new Button("Discard");
+discardBtn.addClickListener(e -> binder.readBean(editedCustomer.peek()));
+
+var buttons = new HorizontalLayout(saveBtn, discardBtn);
+
+// the effect now READS the bean instead of setting it
+Signal.effect(form, () -> binder.readBean(editedCustomer.get()));
+
+private void save() {
+    try {
+        binder.writeBean(editedCustomer.peek());
+        updateCustomerList();
+    } catch (ValidationException ex) {
+        // the fields already show their own error messages
+    }
+}
+
+private void updateCustomerList() {
+    updateCustomerList(searchValue.peek());
+}</code></pre>
+  </div>
+
+  <p>Three methods, three jobs:</p>
+  <ul>
+    <li><code>readBean</code> — copy the object's values <em>into</em> the fields. Edits stay in the form.</li>
+    <li><code>writeBean</code> — validate, then copy the fields <em>back into</em> the object. Throws if anything is invalid.</li>
+    <li>Discard is simply <code>readBean</code> again — re-read the untouched object and the edits vanish.</li>
+  </ul>
+
+  <div class="concept">
+    <b>Notice which read method each one uses.</b> The effect uses <code>get()</code> — it's reactive and must re-run on change. The click listeners use <code>peek()</code> — they run once, on demand, outside any reactive context. Swapping them is the most common signals mistake.
+  </div>
+
+  <div class="note">
+    <b>The empty catch is deliberate.</b> When <code>writeBean</code> throws <code>ValidationException</code>, every offending field is already displaying its own message. There is nothing useful to add, so save simply doesn't happen.
+  </div>
+
+  <figure>
+    <img src="img/shot-06.jpeg" alt="The details form with Save and Discard buttons">
+    <figcaption>Edits are held in the form until Save commits them — or Discard throws them away.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 06-buffered-save-discard</code></div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="s07">
+  <div class="sec-head">
+    <span class="num">07</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=2120" target="_blank" rel="noopener">▶ 35:20</a>
+  </div>
+  <h2>A toolbar and adding customers</h2>
+  <p>Editing works. Creating doesn't — there's no way to get an empty form. Give the view a proper toolbar: a title, the search field, and an add button.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">private HorizontalLayout createToolbar() {
+    var title = new H3("Customers");
+
+    var search = new TextField();
+    search.setPlaceholder("Search...");
+    search.setValueChangeMode(ValueChangeMode.LAZY);
+    search.bindValue(searchValue, searchValue::set);
+    Signal.effect(search, () -> updateCustomerList(searchValue.get()));
+
+    var addBtn = new Button(VaadinIcon.PLUS.create());
+    addBtn.addClickListener(e -> addCustomer());
+
+    var layout = new HorizontalLayout(title, search, addBtn);
+    layout.setWidthFull();
+    layout.setFlexGrow(1, title);
+    return layout;
+}
+
+private void addCustomer() {
+    editedCustomer.set(new Customer());
+}</code></pre>
+  </div>
+
+  <p>Adding a customer is one line: put a brand-new <code>Customer</code> into the signal. The form is already bound to that signal, so it opens, empty, ready to fill. No separate "create mode" flag.</p>
+  <p>Save needs a small change too — a newly created customer isn't in the list yet:</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java — inside save()</div>
+    <pre><code class="lang-java">var customer = editedCustomer.peek();
+binder.writeBean(customer);
+// add customer if new
+if (!customers.contains(customer)) {
+    customers.add(customer);
+}
+updateCustomerList();</code></pre>
+  </div>
+
+  <p><code>setFlexGrow(1, title)</code> makes the title absorb the spare width, pushing search and the add button to the right edge.</p>
+
+  <figure>
+    <img src="img/shot-07.jpeg" alt="A toolbar with title, search and add button, with a blank form open">
+    <figcaption>The add button drops a fresh <code>Customer</code> into the signal — the form does the rest.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 07-toolbar-and-adding</code></div>
+</section>
+
+<!-- ============ 08 ============ -->
+<section id="s08">
+  <div class="sec-head">
+    <span class="num">08</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=2372" target="_blank" rel="noopener">▶ 39:32</a>
+  </div>
+  <h2>Deleting with a confirm dialog</h2>
+  <p>Delete completes CRUD, and destructive actions deserve a confirmation. <code>ConfirmDialog</code> is a component you configure and open.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">var deleteBtn = new Button("Delete");
+deleteBtn.addClickListener(e -> confirmDelete());
+deleteBtn.bindEnabled(editedCustomer.map(customer -> customer != null));
+
+var buttons = new HorizontalLayout(saveBtn, discardBtn, deleteBtn);
+
+private void confirmDelete() {
+    var customer = editedCustomer.peek();
+
+    var dialog = new ConfirmDialog();
+    dialog.setHeader("Confirm delete customer");
+    dialog.setText("Are you sure you want to delete this %s %s?"
+            .formatted(customer.getFirstName(), customer.getLastName()));
+    dialog.setCancelable(true);
+    dialog.setConfirmText("Delete");
+    dialog.addConfirmListener(e -> {
+        customers.remove(customer);
+        updateCustomerList();
+    });
+    dialog.open();
+}</code></pre>
+  </div>
+
+  <p><code>setCancelable(true)</code> adds the Cancel button — without it the dialog only offers confirm. <code>bindEnabled</code> greys the Delete button out when nothing is selected, again derived straight from the signal.</p>
+
+  <figure>
+    <img src="img/shot-08.jpeg" alt="A confirm dialog asking whether to delete the selected customer">
+    <figcaption>Nothing is removed until the user confirms.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 08-delete-confirm-dialog</code></div>
+</section>
+
+<!-- ============ 09 ============ -->
+<section id="s09">
+  <div class="sec-head">
+    <span class="num">09</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=2632" target="_blank" rel="noopener">▶ 43:52</a>
+  </div>
+  <h2>Connecting the real backend</h2>
+  <p>Time to delete <code>getSampleCustomers()</code>. <code>CustomerService</code> has been sitting in the starter all along — a normal Spring service over a JPA repository. Ask for it in the constructor and Spring injects it.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">private final CustomerService customerService;
+
+public CustomerListView(CustomerService customerService) {
+    this.customerService = customerService;
+    // ...
+}
+
+private void updateCustomerList(String query) {
+    var filtered = customerService.findAll();
+
+    if (!query.isEmpty()) {
+        var lower = query.toLowerCase();
+        filtered = filtered.stream()
+                .filter(c -> /* ...same predicate... */ true)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    grid.setItems(filtered);
+}</code></pre>
+  </div>
+
+  <p>Save and delete now go through the service, and the in-memory add/remove disappears entirely:</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">// in save()
+var customer = editedCustomer.peek();
+binder.writeBean(customer);
+customerService.save(customer);
+updateCustomerList();
+
+// in confirmDelete()
+customerService.delete(customer);
+updateCustomerList();</code></pre>
+  </div>
+
+  <p>With a database there's a reliable way to tell a new customer from an existing one — a saved entity has an id, an unsaved one doesn't:</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">private boolean isNew(Customer customer) {
+    return customer != null && customer.getId() == null;
+}
+
+var saveBtn = new Button();
+saveBtn.bindText(editedCustomer.map(customer -> isNew(customer) ? "Create" : "Save"));
+
+deleteBtn.bindEnabled(editedCustomer.map(customer -> !isNew(customer)));</code></pre>
+  </div>
+
+  <div class="concept">
+    <b>Two behaviours fall out of one helper.</b> The save button's <em>label</em> becomes "Create" or "Save", and Delete is disabled for a customer that was never saved — you can't delete a row that doesn't exist yet. Both are <code>map</code> over the same signal.
+  </div>
+
+  <div class="note">
+    <b>Restart required.</b> Adding a constructor parameter changes how Spring builds the view. Hotswap won't pick this up — stop and restart the app.
+  </div>
+
+  <figure>
+    <img src="img/shot-09.jpeg" alt="The grid showing the full list of customers loaded from the database">
+    <figcaption>The full seeded dataset, straight from the database.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 09-real-backend</code></div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s10">
+  <div class="sec-head">
+    <span class="num">10</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=2898" target="_blank" rel="noopener">▶ 48:18</a>
+  </div>
+  <h2>App shell and navigation</h2>
+  <p>Two views, no way to move between them. A <b>layout</b> is the frame that wraps every view — header, drawer, navigation.</p>
+
+  <div class="codeblock">
+    <div class="file">src/main/java/com/example/ui/MainLayout.java</div>
+    <pre><code class="lang-java">@Layout
+public class MainLayout extends AppLayout {
+
+    public MainLayout() {
+        setPrimarySection(Section.DRAWER);
+
+        var logo = VaadinIcon.VAADIN_H.create();
+        var appName = new Span("Polaris CRM");
+        var header = new HorizontalLayout(logo, appName);
+        header.setPadding(true);
+
+        var nav = new SideNav();
+        nav.addItem(new SideNavItem("Home", HomeView.class, VaadinIcon.HOME.create()));
+        nav.addItem(new SideNavItem("Customers", CustomerListView.class, VaadinIcon.USER.create()));
+
+        addToDrawer(header, nav);
+    }
+}</code></pre>
+  </div>
+
+  <p>One annotation does the wiring. <code>@Layout</code> with no arguments makes this the shell for <em>every</em> route in the app — you don't list views or touch <code>@Route</code>.</p>
+
+  <div class="concept">
+    <b><code>SideNavItem</code> takes a view class, not a URL string.</b> The route is read from the class's own <code>@Route</code>. Change the route and navigation follows automatically, and a typo becomes a compile error instead of a broken link.
+  </div>
+
+  <figure>
+    <img src="img/shot-10.jpeg" alt="The app with a drawer containing the logo, app name and navigation">
+    <figcaption>A drawer with branding and navigation, wrapping every view.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 10-app-shell-navigation</code></div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s11">
+  <div class="sec-head">
+    <span class="num">11</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=3102" target="_blank" rel="noopener">▶ 51:42</a>
+  </div>
+  <h2>Styling with theme variants</h2>
+  <p>Before writing any CSS, use what the components already offer. <b>Theme variants</b> are the built-in visual options — a primary button, an error button, a tertiary one.</p>
+
+  <div class="codeblock">
+    <div class="file">CustomerListView.java</div>
+    <pre><code class="lang-java">addBtn.addThemeVariants(ButtonVariant.PRIMARY);
+saveBtn.addThemeVariants(ButtonVariant.PRIMARY);
+deleteBtn.addThemeVariants(ButtonVariant.ERROR, ButtonVariant.TERTIARY);
+
+form.getStyle().setPaddingTop("30px");
+
+dialog.setConfirmButtonTheme("primary error");</code></pre>
+  </div>
+
+  <p>Variants combine: <code>ERROR</code> plus <code>TERTIARY</code> gives a red, borderless Delete — visually quieter than Save while still reading as dangerous. The dialog's confirm button takes the same idea as a string.</p>
+
+  <div class="note">
+    <b><code>getStyle()</code> is the escape hatch for one-offs.</b> A single padding value doesn't deserve a CSS file. Reach for it when the change is genuinely local — anything reusable belongs in the stylesheet.
+  </div>
+
+  <figure>
+    <img src="img/shot-11.jpeg" alt="Buttons restyled with primary and error theme variants">
+    <figcaption>Filled Save, blue add button, red tertiary Delete — no CSS yet.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 11-theme-variants</code></div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="s12">
+  <div class="sec-head">
+    <span class="num">12</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=3237" target="_blank" rel="noopener">▶ 53:57</a>
+  </div>
+  <h2>Custom CSS and themes</h2>
+  <p>When a variant doesn't exist for what you want, write CSS. Add a class name in Java, then style it in <code>styles.css</code>.</p>
+
+  <div class="codeblock">
+    <div class="file">MainLayout.java</div>
+    <pre><code class="lang-java">var appName = new Span("Polaris CRM");
+appName.addClassNames("app-name");</code></pre>
+  </div>
+
+  <div class="codeblock">
+    <div class="file">src/main/resources/META-INF/resources/styles.css</div>
+    <pre><code class="lang-css">.app-name {
+    font-weight: bold;
+}</code></pre>
+  </div>
+
+  <p>While you're here, let the app follow the operating system's light or dark preference:</p>
+
+  <div class="codeblock">
+    <div class="file">src/main/java/com/example/Application.java</div>
+    <pre><code class="lang-java">@ColorScheme(ColorScheme.Value.LIGHT_DARK)</code></pre>
+  </div>
+
+  <div class="concept">
+    <b>You style Vaadin components with ordinary CSS.</b> There's no proprietary styling language — class names, selectors and custom properties, exactly as you'd expect. The components expose CSS custom properties for the things you're most likely to change.
+  </div>
+
+  <div class="note">
+    <b>Restart required</b> for the <code>Application.java</code> change.
+  </div>
+
+  <figure>
+    <img src="img/shot-12.jpeg" alt="The app name rendered in bold in the drawer">
+    <figcaption>A small change, but it's your CSS reaching a Vaadin component.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 12-custom-css-themes</code></div>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="s13">
+  <div class="sec-head">
+    <span class="num">13</span>
+    <a class="stamp" href="https://youtu.be/lTrcM0iP7O4?t=3493" target="_blank" rel="noopener">▶ 58:13</a>
+  </div>
+  <h2>Branding with the theme generator</h2>
+  <p>Hand-writing a whole design system would take the rest of the day. Vaadin's <a href="https://vaadin.com/theme-editor" target="_blank" rel="noopener">theme generator</a> lets you pick colours, fonts, roundness and density in the browser, then hands you a block of CSS custom properties to paste in.</p>
+
+  <div class="codeblock">
+    <div class="file">styles.css</div>
+    <pre><code class="lang-css">@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
+html {
+    --aura-accent-color-dark: #615FFF;
+    --aura-accent-color-light: #4F39F6;
+    --aura-background-color-dark: #0C0B2F;
+    --aura-background-color-light: #D0DAFF;
+    --aura-base-font-size: 15;
+    --aura-base-radius: 7;
+    --aura-content-color-scheme: light dark;
+    --aura-font-family: 'Manrope', var(--aura-font-family-system);
+    --aura-notification-color-scheme: light dark;
+    --aura-surface-level: 2;
+    color-scheme: light dark;
+}
+
+html {
+    --aura-font-weight-regular: 500;
+    --aura-font-weight-medium: 600;
+    --aura-font-weight-semibold: 700;
+    --vaadin-button-font-weight: 600;
+    --vaadin-input-field-value-font-weight: 500;
+    --vaadin-checkbox-font-weight: 600;
+    --vaadin-radio-button-font-weight: 600;
+    --vaadin-message-name-font-weight: 600;
+    --vaadin-grid-header-font-weight: 600;
+}
+
+vaadin-card,
+vaadin-dashboard-widget {
+    --aura-surface-level: 4;
+}</code></pre>
+  </div>
+
+  <p>Not one component was touched. Every button, field, dialog and grid in the app picks up the new accent colour, typeface and corner radius, because they all read the same custom properties.</p>
+
+  <figure>
+    <img src="img/shot-13.jpeg" alt="The finished app with the generated theme applied">
+    <figcaption>The finished Polaris CRM — same Java, a completely different feel.</figcaption>
+  </figure>
+
+  <div class="checkout">Checkpoint: <code>git checkout 13-theme-generator</code> · final state: <code>git checkout final</code></div>
+</section>
+
+<!-- ============ wrap ============ -->
+<section id="done">
+  <div class="sec-head"><span class="num">✔</span></div>
+  <h2>You're done</h2>
+  <p>A full-stack CRM: a sortable, filterable grid, a validated form with buffered save and discard, create and delete backed by a database, an app shell with navigation, and a custom theme. All in Java, across three files you wrote yourself.</p>
+
+  <div class="card">
+    <h3>Where to go next</h3>
+    <ul style="margin-bottom:0">
+      <li><b>The add-on directory</b> — hundreds of community and official components, at <a href="https://vaadin.com/directory" target="_blank" rel="noopener">vaadin.com/directory</a>.</li>
+      <li><b>Vaadin Copilot</b> — edit the running UI in the browser, visually or with AI, and it writes the Java back to your source files.</li>
+      <li><b>Signals</b> — this tutorial used <code>ValueSignal</code>, <code>map</code> and <code>effect</code>; there is more, including <code>ListSignal</code> and computed signals.</li>
+    </ul>
+  </div>
+
+  <div class="linkrow">
+    <a href="https://youtu.be/lTrcM0iP7O4" target="_blank" rel="noopener">▶ Watch the video</a>
+    <a href="https://github.com/drewharvey/vaadin-intro-tutorial" target="_blank" rel="noopener">Source on GitHub</a>
+    <a href="https://vaadin.com/docs/latest/flow/ui-state" target="_blank" rel="noopener">Signals documentation</a>
+    <a href="https://vaadin.com/docs/latest/components" target="_blank" rel="noopener">All components</a>
+    <a href="https://vaadin.com/docs" target="_blank" rel="noopener">Full documentation</a>
+  </div>
+</section>
+
+<footer>
+  <p>The text edition of the Vaadin Flow introduction tutorial. Code on the <a href="https://github.com/drewharvey/vaadin-intro-tutorial/tree/tutorial-complete">tutorial-complete</a> branch, tagged section by section.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var KEYWORDS = /\b(public|private|protected|class|interface|extends|implements|new|return|void|static|final|var|if|else|for|while|try|catch|throw|throws|import|package|boolean|int|true|false|null|this)\b/g;
+  document.querySelectorAll('pre code').forEach(function (block) {
+    var lang = (block.className.match(/lang-(\w+)/) || [])[1] || '';
+    if (lang === 'bash') return;
+    var html = block.innerHTML;
+    var store = [];
+    // Placeholder token cannot occur in any of the code samples on this page.
+    function stash(cls, text) {
+      store.push('<span class="' + cls + '">' + text + '</span>');
+      return '%%' + (store.length - 1) + '%%';
+    }
+    // Comments and strings are captured first, so later passes cannot reach inside them.
+    html = html.replace(/\/\/[^\n]*/g, function (m) { return stash('tk-c', m); });
+    html = html.replace(/"[^"\n]*"/g, function (m) { return stash('tk-s', m); });
+    html = html.replace(/'[^'\n]*'/g, function (m) { return stash('tk-s', m); });
+    if (lang === 'css') {
+      html = html.replace(/--[\w-]+/g, function (m) { return stash('tk-n', m); });
+      html = html.replace(/(^|\n)([.@a-zA-Z][\w\s,.\-]*?)(\s*\{)/g, function (m, a, b, c) {
+        return a + stash('tk-a', b) + c;
+      });
+    } else {
+      html = html.replace(/@\w+/g, function (m) { return stash('tk-a', m); });
+      html = html.replace(KEYWORDS, function (m) { return stash('tk-k', m); });
+      html = html.replace(/\b[A-Z][A-Za-z0-9_]*\b/g, function (m) { return stash('tk-t', m); });
+    }
+    // Restore repeatedly: a later pass may have wrapped an earlier placeholder.
+    for (var pass = 0; pass < 5 && html.indexOf('%%') !== -1; pass++) {
+      html = html.replace(/%%(\d+)%%/g, function (m, i) { return store[+i]; });
+    }
+    block.innerHTML = html;
+  });
+})();
+</script>
+
+</body>
+</html>
