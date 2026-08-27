@@ -1,22 +1,19 @@
-# Polaris CRM — the finished tutorial app
+# Polaris CRM — Finished Tutorial App
 
-**This is the completed project.** It's the app built end-to-end in:
+Build a modern Java web app UI in Java using the [Vaadin Flow framework](https://vaadin.com) - no JavaScript or HTML.
 
-### ▶ [Build a Full-Stack App in Pure Java — Vaadin Flow Tutorial](https://youtu.be/lTrcM0iP7O4)
-
-A Spring Boot + Vaadin CRM — sortable grid, signal-driven filtering, a validated form with
-buffered save/discard, add and delete with a confirm dialog, a real database backend, an app
-shell with navigation, and custom theming. All in pure Java — no HTML, no JavaScript.
+This branch holds the finished app, built one commit at a time. The tutorial comes in both video and a text versions:
+ * [Video tutorial](https://youtu.be/lTrcM0iP7O4)
+ * [Text tutorial](https://drewharvey.github.io/vaadin-intro-tutorial/)
 
 > **Want to build it yourself?** Start on the [`main`](../../tree/main) branch — that's the
-> starter project the video begins from. This branch is the answer key.
+> starter project the tutorial begins from.
 
 ---
 
 ## Video checkpoints
 
-Every section of the video has a tag marking the code **as it stood when that section ended**.
-Check one out to see exactly what was on screen:
+Every section of the video has a tag marking the code as it stood when that section ended:
 
 ```bash
 git checkout 05-binder-validation
@@ -44,18 +41,21 @@ the individual edits, if you want a finer-grained diff.
 
 ---
 
-## What's in the finished app
+## Project structure
+
+Two routes: **`/`** is the components and layouts scene from the early sections, and
+**`/customers`** is Polaris CRM. `MainLayout` wraps both.
 
 ```
 src/
 ├── main/
 │   ├── java/com/example/
-│   │   ├── Application.java              entry point + @StyleSheet, @ColorScheme, @Push
+│   │   ├── Application.java              Spring Boot entry point
 │   │   ├── ui/
-│   │   │   ├── MainLayout.java           @Layout app shell — drawer, logo, SideNav
-│   │   │   ├── HomeView.java             @Route("") — the components & layouts scene
-│   │   │   └── CustomerListView.java     @Route("customers") — the CRM itself
-│   │   └── backend/
+│   │   │   ├── MainLayout.java           app shell — drawer, logo, SideNav
+│   │   │   ├── HomeView.java             the components and layouts scene
+│   │   │   └── CustomerListView.java     the CRM itself
+│   │   └── backend/                      pre-baked backend
 │   │       ├── Customer.java             entity
 │   │       ├── CustomerRepository.java   data access
 │   │       ├── CustomerService.java      backend service
@@ -65,19 +65,36 @@ src/
 │       ├── application.properties
 │       ├── vaadin-featureflags.properties
 │       └── data.sql                      sample customers
-└── test/java/com/example/
-    ├── backend/
-    │   └── CustomerServiceTest.java
-    └── ui/
-        └── HomeViewTest.java
+└── test/java/com/example/                automated tests
 ```
-
-Two routes: **`/`** is the components-and-layouts scene from the early sections, and
-**`/customers`** is Polaris CRM. `MainLayout` wraps both.
 
 ---
 
-## Run application
+## Run the application with hotswap (live reload) - RECOMMENDED
+
+Running the app this way allows us to make code changes and see them instantly in the browser. This speeds up development time considerably, especially when making tweaks to the UI.
+
+> Hotswap is also required to use Vaadin Copilot.
+
+Instructions:
+
+- [Video instructions](https://youtu.be/QdRV75GADxk?t=311)
+- **IntelliJ IDEA:** install *Vaadin* plugin from the JetBrains Marketplace → **Debug using Hotswap
+  Agent** (dropdown next to Run). *Just installed it? Let IntelliJ finish indexing, or restart it,
+  if the menu item isn't there yet.*
+- **VS Code:** install the *Vaadin* extension → **Vaadin: Debug using Hotswap Agent** from the
+  command palette.
+- **Eclipse:** see [instructions in Vaadin docs](https://vaadin.com/docs/latest/getting-started/dev-environment/run/eclipse#enabling-hotswap).
+
+## Run application without hotswap
+
+Running the application this way will require server restarts for some changes.
+
+### From the IDE
+
+Use the IDE's run command on the Application.java class. Most IDE's will automatically detect Application.java as the entry point, but if they do not, you can right-click the class and select Run.
+
+### From the terminal (command line)
 
 From the project folder:
 
@@ -88,27 +105,11 @@ From the project folder:
 No system Maven required — the wrapper is included. Then open **http://localhost:8080** and use
 the drawer to reach **Customers**.
 
-The first start takes ~30 seconds while Maven downloads dependencies.
-
 > **Port 8080 already in use?** Stop the other process, or set `server.port=8081` in
 > `src/main/resources/application.properties` and open that port instead.
 >
 > **To stop the app:** press `Ctrl+C` in the terminal (or the red Stop button if you launched
 > from your IDE).
-
-## Enable hotswap (live reload)
-
-To edit Java and see it in the browser without restarting, install the **Vaadin plugin** and
-start the app through it:
-
-- **IntelliJ IDEA:** install *Vaadin* from the JetBrains Marketplace → **Debug using Hotswap
-  Agent** (dropdown next to Run).
-- **VS Code:** install the *Vaadin* extension → **Vaadin: Debug using Hotswap Agent** from the
-  command palette.
-- **Eclipse:** install the *Vaadin* plugin → right-click the project → **Run As → Vaadin
-  Application**.
-
-Required for the AI edits in [Vaadin Copilot](https://vaadin.com/docs/latest/tools/copilot).
 
 ---
 
