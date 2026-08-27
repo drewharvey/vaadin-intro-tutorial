@@ -107,21 +107,29 @@ body {
 }
 .watch:hover { filter: brightness(1.08); }
 
-.themetoggle {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 36px; height: 36px; padding: 0;
-  border: 1px solid var(--line); border-radius: 10px;
-  background: var(--surface); color: var(--muted);
-  cursor: pointer; flex: none;
-  transition: color .12s ease, border-color .12s ease;
+.themeswitch {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 3px; flex: none;
+  border: 1px solid var(--line); border-radius: 11px;
+  background: var(--surface);
 }
-.themetoggle:hover { color: var(--ink); border-color: var(--accent); }
-.themetoggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.themetoggle svg { width: 18px; height: 18px; display: block; }
-/* The button offers the theme you are not in, so only one glyph is ever shown.
-   data-effective is set before first paint, so this never flickers. */
-:root[data-effective="light"] .themetoggle .i-sun { display: none; }
-:root[data-effective="dark"] .themetoggle .i-moon { display: none; }
+.themeswitch button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; padding: 0;
+  border: 0; border-radius: 8px;
+  background: none; color: var(--muted);
+  cursor: pointer;
+  transition: color .12s ease, background-color .12s ease;
+}
+.themeswitch button:hover { color: var(--ink); }
+.themeswitch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.themeswitch button svg { width: 17px; height: 17px; display: block; }
+/* data-mode is set before first paint, so the selected segment never flickers. */
+:root[data-mode="system"] .themeswitch [data-mode="system"],
+:root[data-mode="light"] .themeswitch [data-mode="light"],
+:root[data-mode="dark"] .themeswitch [data-mode="dark"] {
+  background: var(--accent-soft); color: var(--accent);
+}
 
 /* ---------- layout ---------- */
 .shell {
@@ -314,12 +322,15 @@ a { color: var(--accent); }
   .wrap { padding: 0 0 72px; }
   .toc .t { display: none; }
 }
+@media (max-width: 620px) {
+  .watch-more { display: none; }
+}
 @media (max-width: 480px) {
-  /* The bar must fit a 320px phone: trim its padding and let the title clip. */
-  .topbar { padding: 10px 14px; gap: 10px; }
+  /* The bar must fit a 320px phone: trim padding, drop words, let the title clip. */
+  .topbar { padding: 10px 12px; gap: 8px; }
   .watch { padding: 6px 11px; font-size: 13px; }
-  .themetoggle { width: 32px; height: 32px; }
-  .themetoggle svg { width: 16px; height: 16px; }
+  .themeswitch button { width: 27px; height: 27px; }
+  .themeswitch button svg { width: 15px; height: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -327,14 +338,18 @@ a { color: var(--accent); }
 }
 </style>
 <script>
-// Runs before first paint so a stored choice never flashes the wrong theme.
+// Runs before first paint so neither the theme nor the selected segment flashes.
 (function () {
-  var stored = null;
-  try { stored = localStorage.getItem('theme'); } catch (e) {}
+  var mode = null;
+  try { mode = localStorage.getItem('theme'); } catch (e) {}
+  if (mode !== 'light' && mode !== 'dark' && mode !== 'system') mode = 'system';
   var root = document.documentElement;
-  if (stored === 'light' || stored === 'dark') root.setAttribute('data-theme', stored);
-  var dark = stored ? stored === 'dark'
-    : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var systemDark = window.matchMedia
+    && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var dark = mode === 'system' ? systemDark : mode === 'dark';
+  root.setAttribute('data-mode', mode);
+  if (mode === 'system') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', mode);
   root.setAttribute('data-effective', dark ? 'dark' : 'light');
 })();
 </script>
@@ -344,18 +359,29 @@ a { color: var(--accent); }
 <div class="topbar">
   <span class="mark"><img src="vaadin-symbol.svg" alt=""> Polaris CRM</span>
   <span class="spacer"></span>
-  <button class="themetoggle" id="themeToggle" type="button" aria-label="Switch to dark theme">
-    <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
-    </svg>
-    <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
-         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="4.2"/>
-      <path d="M12 2v2.2M12 19.8V22M4.2 12H2M22 12h-2.2M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/>
-    </svg>
-  </button>
-  <a class="watch" href="https://youtu.be/lTrcM0iP7O4" target="_blank" rel="noopener">▶ Watch the video</a>
+  <div class="themeswitch" role="group" aria-label="Colour theme">
+    <button type="button" data-mode="system" title="Sync with system" aria-label="Sync theme with system" aria-pressed="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2.5" y="3.5" width="19" height="13" rx="2"/>
+        <path d="M8.5 20.5h7M12 16.5v4"/>
+      </svg>
+    </button>
+    <button type="button" data-mode="light" title="Light" aria-label="Use light theme" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2v2.2M12 19.8V22M4.2 12H2M22 12h-2.2M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"/>
+      </svg>
+    </button>
+    <button type="button" data-mode="dark" title="Dark" aria-label="Use dark theme" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+      </svg>
+    </button>
+  </div>
+  <a class="watch" href="https://youtu.be/lTrcM0iP7O4" target="_blank" rel="noopener">▶ Watch<span class="watch-more"> the video</span></a>
 </div>
 
 <div class="shell">
@@ -1320,40 +1346,49 @@ vaadin-dashboard-widget {
 
 
 <script>
-// Light/dark toggle. No stored choice means "follow the system", and the page
-// keeps following it until the reader picks a side.
+// Theme control: system (default) / light / dark. "system" is a real, reachable
+// mode rather than merely the absence of a choice, so readers can hand control
+// back to the OS after picking a side.
 (function () {
-  var btn = document.getElementById('themeToggle');
-  if (!btn) return;
+  var group = document.querySelector('.themeswitch');
+  if (!group) return;
   var root = document.documentElement;
+  var buttons = Array.prototype.slice.call(group.querySelectorAll('button[data-mode]'));
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-  function systemDark() { return mq ? mq.matches : false; }
-  function effective() { return root.getAttribute('data-effective') === 'dark'; }
-
-  function apply(dark, persist) {
-    root.setAttribute('data-theme', dark ? 'dark' : 'light');
-    root.setAttribute('data-effective', dark ? 'dark' : 'light');
-    btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-    if (persist) { try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {} }
+  function read() {
+    var m = null;
+    try { m = localStorage.getItem('theme'); } catch (e) {}
+    return (m === 'light' || m === 'dark' || m === 'system') ? m : 'system';
   }
 
-  // Label the button correctly for the theme resolved before paint.
-  btn.setAttribute('aria-label', effective() ? 'Switch to light theme' : 'Switch to dark theme');
-
-  btn.addEventListener('click', function () { apply(!effective(), true); });
-
-  // Track the OS only while the reader has expressed no preference.
-  if (mq && mq.addEventListener) {
-    mq.addEventListener('change', function (e) {
-      var stored = null;
-      try { stored = localStorage.getItem('theme'); } catch (err) {}
-      if (stored === 'light' || stored === 'dark') return;
-      root.removeAttribute('data-theme');
-      root.setAttribute('data-effective', e.matches ? 'dark' : 'light');
-      btn.setAttribute('aria-label', e.matches ? 'Switch to light theme' : 'Switch to dark theme');
+  function paint(mode) {
+    var dark = mode === 'system' ? !!(mq && mq.matches) : mode === 'dark';
+    root.setAttribute('data-mode', mode);
+    if (mode === 'system') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', mode);
+    root.setAttribute('data-effective', dark ? 'dark' : 'light');
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-mode') === mode ? 'true' : 'false');
     });
   }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var mode = b.getAttribute('data-mode');
+      try { localStorage.setItem('theme', mode); } catch (e) {}
+      paint(mode);
+    });
+  });
+
+  // Follow the OS while, and only while, the reader is in system mode.
+  if (mq && mq.addEventListener) {
+    mq.addEventListener('change', function () {
+      if (read() === 'system') paint('system');
+    });
+  }
+
+  paint(read());
 })();
 </script>
 
