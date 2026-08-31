@@ -120,6 +120,21 @@ the drawer to reach **Customers**.
 java -jar target/*.jar
 ```
 
+---
+
+## Run with Docker
+
+Optional — nothing in the tutorial requires it. The included `Dockerfile` builds the app and packages the jar into a runnable image.
+
+```bash
+docker build -t polaris-crm .
+docker run -p 8080:8080 polaris-crm
+```
+
+Then open **http://localhost:8080**.
+
+> The build accepts a Vaadin Pro or Offline key as a build secret. This project uses no commercial components, so neither is needed — see the comments in the `Dockerfile`.
+
 ## Learn more
 
 - [Signals](https://vaadin.com/docs/latest/flow/ui-state) — the reactive state used throughout this app
